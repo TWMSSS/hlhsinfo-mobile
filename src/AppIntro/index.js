@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { Dimensions, StyleSheet } from 'react-native';
 import { View, Image } from 'react-native';
 import { Text, MD3Colors } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -11,22 +11,24 @@ import { saveLocal, readLocal } from '../util';
 const slides = [
     {
         key: 1,
-        title: '查詢你的成績',
-        text: '快速查詢你的花蓮高中成績',
-        backgroundColor: '#59b2ab',
+        title: '全新介面\n依舊實用!',
+        text: '享受全新花中查詢手機板介面，暢查學校資料!',
+        backgroundColor: '#432ff7',
         image: require("../images/intro1.png")
     },
     {
         key: 2,
-        title: '分享你的成績',
-        text: 'Other cool stuff',
+        title: '成績查詢\n毫無阻礙!',
+        text: '資料有限，分析無限!',
         backgroundColor: '#febe29',
+        image: require("../images/intro2.png")
     },
     {
         key: 3,
-        title: 'Rocket guy',
-        text: 'I\'m already out of descriptions\n\nLorem ipsum bla bla bla',
-        backgroundColor: '#22bcb5',
+        title: '立即使用新版\n花 中 查 詢 ！',
+        text: '立即使用功能豐富又開源的花中查詢手機版吧!',
+        backgroundColor: '#458BFF',
+        image: require("../images/intro3.png")
     }
 ];
 
@@ -53,13 +55,15 @@ const styles = StyleSheet.create({
     desc: {
         textAlign: "center",
         width: "100%",
-        bottom: -30
+        bottom: 120,
+        color: "#fff"
     },
     introImg: {
         // top: 0,
         // margin: 15,
-        width: 400,
-        height: 1000
+        width: Dimensions.get("screen").width,
+        marginTop: -100
+        // height: 300
     }
 });
 
@@ -77,9 +81,9 @@ export default class AppIntro extends React.Component {
         return (
             <View style={{ ...styles.slides, backgroundColor: item.backgroundColor }}>
                 <View style={styles.inSlides}>
-                    <Text variant="displayLarge" style={{ fontWeight: "bold" }}>{item.title}</Text>
-                    <View style={{ overflow: "hidden", height: "80%", justifyContent: "flex-start" }}>
-                        <Image style={styles.introImg} source={item.image} resizeMethod="resize" resizeMode="center" />
+                    <Text variant="displayLarge" style={{ fontWeight: "bold", color: "#fff" }}>{item.title}</Text>
+                    <View style={{ overflow: "hidden", height: "80%" }}>
+                        <Image style={styles.introImg} source={item.image} resizeMode="center" />
                     </View>
                     <Text style={styles.desc}>{item.text}</Text>
                 </View>
@@ -92,6 +96,7 @@ export default class AppIntro extends React.Component {
                 <MaterialCommunityIcons
                     name="greater-than"
                     size={50}
+                    color="#fff"
                 />
             </View>
         );

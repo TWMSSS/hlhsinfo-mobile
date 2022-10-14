@@ -31,6 +31,7 @@ export default SearchLogin = ({ route }) => {
             if (global.accountData) {
                 clearInterval(t);
                 setAlert(<></>);
+                navigation.navigate("Choise");
             }
         }, 100);
     }, []);

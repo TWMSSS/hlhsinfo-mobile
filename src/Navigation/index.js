@@ -12,8 +12,8 @@ import { getTheme } from '../util';
 import Schedule from '../Schedule';
 import Search from '../Search';
 import User from '../User';
-import Premium from '../Premium';
 import QRCodeScanner from '../QRCodeScanner';
+import Site from '../Site';
 
 export default Navigation = () => {
     const HomeComponent = ({ navigation }) => {
@@ -58,9 +58,9 @@ export default Navigation = () => {
                     title: "資料查詢",
                     tabBarIcon: (tabItem) => gI(tabItem.focused, "account-details", "account-details-outline")
                 }} />
-                <Tab.Screen name="premium" component={Premium} options={{
-                    title: "會員方案",
-                    tabBarIcon: (tabItem) => gI(tabItem.focused, "diamond", "diamond-stone")
+                <Tab.Screen name="site" component={Site} options={{
+                    title: "學校官網",
+                    tabBarIcon: (tabItem) => gI(tabItem.focused, "earth", "earth")
                 }} />
                 <Tab.Screen name="user" component={User} options={{
                     title: "使用者",

@@ -8,6 +8,7 @@ import Lack from "./Lack";
 import Score from "./Score";
 import SearchLogin from "./SearchLogin";
 import Profile from "./Profile";
+import RewAndPun from "./RewAndPun";
 
 export default Search = ({ route, navigation }) => {
     return (
@@ -22,6 +23,7 @@ export default Search = ({ route, navigation }) => {
             <Stack.Screen name="Score" component={Score} />
             <Stack.Screen name="Lack" component={Lack} />
             <Stack.Screen name="Profile" component={Profile} />
+            <Stack.Screen name="RewAndPun" component={RewAndPun} />
         </Stack.Navigator>
     );
 }

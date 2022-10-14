@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, Fragment } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
     Button,
@@ -8,12 +8,15 @@ import {
     Provider,
     MD3DarkTheme,
     MD3LightTheme,
-    TextInput
+    TextInput,
+    ActivityIndicator,
+    Text
 } from "react-native-paper";
 import {
     Appearance,
     Linking,
-    Alert
+    Alert,
+    View
 } from "react-native";
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 
@@ -29,6 +32,29 @@ export const readLocal = async (name) => {
 
 export const removeLocal = async (name) => {
     return await AsyncStorage.removeItem(name);
+}
+
+export const showLoading = (description = "載入中...") => {
+    return (
+        <Portal>
+            <Dialog visible={true}>
+                <Dialog.Content>
+                    <View style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center"
+                    }}>
+                        <ActivityIndicator animating={true} size={40} style={{
+                            marginRight: 15
+                        }} />
+                        <Text variant="displaySmall" style={{
+                            alignContent: "center"
+                        }}>{description}</Text>
+                    </View>
+                </Dialog.Content>
+            </Dialog>
+        </Portal>
+    );
 }
 
 export const showAlert = (title, description, closeText = "確認", onPress = () => { }) => {
@@ -95,9 +121,9 @@ export const showInput = (title, description, input = {
 export const isReactFragment = (variableToInspect) => {
     // https://stackoverflow.com/a/55631482
     if (variableToInspect.type) {
-        return variableToInspect.type === React.Fragment;
+        return variableToInspect.type === Fragment;
     }
-    return variableToInspect === React.Fragment;
+    return variableToInspect === Fragment;
 }
 
 export const getTheme = () => {
@@ -195,4 +221,9 @@ export const chartConfig = {
 
 export const makeNeedLoginAlert = (callback) => {
     return showAlert("必須登入", "您已被伺服器登出了! 請再登入一次。", "確定", callback);
+}
+
+export const className = (classTime) => {
+    var k = ["早修", "升旗", "第一節", "第二節", "第三節", "第四節", "午修", "第五節", "第六節", "第七節", "第八節", "降旗", "第九節", "第十節", "第十一節", "第十二節"];
+    return k[classTime];
 }

@@ -80,3 +80,11 @@ export const getShared = async (sharedID) => {
         })
     })
 }
+
+export const getRewAndPun = async (token) => {
+    return await JSONHTTP(defaultAPIURL + APIs.rewAndPun, token);
+}
+
+export const getSharedImage = async (sharedid) => {
+    return await HTTPRequest(defaultAPIURL + APIs.sharedImg + `?shared=${sharedid}`);
+}

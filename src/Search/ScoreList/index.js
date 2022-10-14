@@ -3,7 +3,7 @@ import { ActivityIndicator } from "react-native-paper";
 import SelectCard from "../../SelectCard";
 
 import Page from "../../Page";
-import { getTheme, makeNeedLoginAlert, showAlert } from "../../util";
+import { getTheme, makeNeedLoginAlert, openLink, showAlert } from "../../util";
 import { getAllScoresList } from "../../api/apis";
 
 export default ScoreList = ({ navigation }) => {
@@ -12,7 +12,7 @@ export default ScoreList = ({ navigation }) => {
 
     useEffect(() => {
         async function a() {
-            var scores = await getAllScoresList(global.accountData.token);
+            var scores = await getAllScoresList(global.accountData?.token);
             if (!scores.data) {
                 setAlert(makeNeedLoginAlert(() => {
                     navigation.goBack();
@@ -33,9 +33,7 @@ export default ScoreList = ({ navigation }) => {
                 backgroundColor: getTheme().colors.onPrimary,
                 color: getTheme().colors.primary
             }} onPress={
-                () => navigation.navigate("Score", {
-                    score: "all"
-                })
+                () => openLink(`https://hlhsinfo.ml/compare#token=${window.accountData.token}`)
             } />);
             setDisplay(dp);
         }

@@ -14,7 +14,8 @@ import {
     showAlert,
     showInput,
     blobToBase64,
-    showConfirm
+    showConfirm,
+    openLink
 } from "../../util";
 import SelectCard from "../../SelectCard";
 import {
@@ -42,7 +43,7 @@ export default Menu = ({ navigation }) => {
     const [logined, setLogined] = useState(typeof global.accountData === "object");
 
     function setLoginStatus(login) {
-        setUsername(login ? global.accountData?.userName ?? global.accountData?.schoolNumber : "登入");
+        setUsername(login ? global.accountData?.userName.trim().length !== 0 ? global.accountData?.userName : global.accountData?.schoolNumber : "登入");
         setUserImg(login
             ? <Image source={{ uri: global.accountData.userImg, width: 100, height: 100 }} style={{
                 borderRadius: 100,
@@ -100,7 +101,7 @@ export default Menu = ({ navigation }) => {
                 function setCap(text) {
                     captcha = text;
                 }
-                setAlert(showInput("輸入驗證碼", <><Paragraph>您先前已經登入成功過了，現在只需要輸入驗證碼即可登入! 您亦可購買我們的<Text style={{ fontWeight: "bold" }}>付費會員方案</Text>來自動輸入驗證碼。</Paragraph><Image source={{ uri: cap, width: "100%", height: 150 }} resizeMode="contain" style={{
+                setAlert(showInput("輸入驗證碼", <><Paragraph>您先前已經登入成功過了，現在只需要輸入驗證碼即可登入!</Paragraph><Image source={{ uri: cap, width: "100%", height: 150 }} resizeMode="contain" style={{
                     borderRadius: 15,
                     width: "100%"
                 }} /></>, {
@@ -125,8 +126,10 @@ export default Menu = ({ navigation }) => {
         }
 
         if (typeof global.accountData === "undefined") b();
+    }, []);
 
-        setInterval(() => {
+    useEffect(() => {
+        var t = setInterval(() => {
             if (typeof global.accountData === "undefined" && logined) {
                 setUsername("登入");
                 setUserImg(<MaterialCommunityIcons name="account" size={100} style={{
@@ -138,7 +141,11 @@ export default Menu = ({ navigation }) => {
                 b();
             }
         }, 500);
-    }, [])
+
+        return () => {
+            clearInterval(t);
+        }
+    }, [logined]);
 
     return (
         <>
@@ -173,11 +180,14 @@ export default Menu = ({ navigation }) => {
                     </Text>
                 </Card>
                 <View style={{
-                    height: 300,
+                    // height: 300,
                     margin: 15
                 }}>
+                    <SelectCard title={<><MaterialCommunityIcons name="currency-usd" size={30} /> 支持我們!</>} onPress={() => navigation.navigate("Support")} />
+                    <SelectCard title={<><MaterialCommunityIcons name="chart-box" size={30} /> 伺服器狀態</>} onPress={() => openLink("https://hlhsinfo.ml/status.html")} />
                     <SelectCard title={<><MaterialCommunityIcons name="certificate" size={30} /> 開放原始碼授權</>} onPress={() => navigation.navigate("License")} />
-                    <SelectCard title={<><MaterialCommunityIcons name="cog" size={30} /> 設定</>} />
+                    <SelectCard title={<><MaterialCommunityIcons name="github" size={30} /> Github 專案</>} onPress={() => openLink("https://github.com/TWMSSS/hlhsinfo-mobile")} />
+                    {/* <SelectCard title={<><MaterialCommunityIcons name="cog" size={30} /> 設定</>} /> */}
                 </View>
             </Page>
         </>

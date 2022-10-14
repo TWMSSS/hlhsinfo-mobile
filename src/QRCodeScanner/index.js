@@ -36,7 +36,7 @@ export default QRCodeScanner = ({ navigation }) => {
 
     const styles = StyleSheet.create({
         container: {
-            height: Dimensions.get("window").height - 135
+            height: Dimensions.get("window").height - 112
         },
         barcodeText: {
             fontSize: 20,
@@ -122,9 +122,12 @@ export default QRCodeScanner = ({ navigation }) => {
                     }}>
                         <View>
                             <Text variant="headlineLarge" style={{
-                                marginBottom: 15
+                                marginBottom: 15,
+                                color: "#fff"
                             }}>掃描成績分享QR Code</Text>
-                            <Paragraph>掃描其他人成績分享之QR Code，讓你快速查看他人成績!</Paragraph>
+                            <Paragraph style={{
+                                color: "#fff"
+                            }}>掃描其他人成績分享之QR Code，讓你快速查看他人成績!</Paragraph>
                         </View>
                     </View>
                 </SafeAreaView>

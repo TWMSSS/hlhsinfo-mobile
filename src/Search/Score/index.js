@@ -7,10 +7,11 @@ import {
 import { Dimensions, View, ScrollView, StyleSheet } from "react-native";
 import { PieChart, BarChart, LineChart, ProgressChart } from "react-native-chart-kit";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { BottomSheet } from "@gorhom/bottom-sheet";
 
 import { getAllScores, getScore, getShared } from "../../api/apis";
 import Page from "../../Page";
-import { showAlert, chartConfig, getTheme, colorWithOpcy } from "../../util";
+import { showAlert, chartConfig, getTheme, colorWithOpcy, makeNeedLoginAlert, showLoading } from "../../util";
 import ScoreCard from "./ScoreCard";
 
 export default Score = ({ route, navigation }) => {
@@ -219,8 +220,16 @@ export default Score = ({ route, navigation }) => {
                     navigation.goBack();
                     return;
                 }
-                const scoreD = (await getAllScores(global.accountData.token)).data;
-                return sS(scoreD, "all");
+                const scoreD = await getAllScores(global.accountData?.token);
+                if (!scoreD.data) {
+                    setAlert(makeNeedLoginAlert(() => {
+                        navigation.goBack();
+                        setAlert(<></>);
+                        window.accountData = undefined;
+                    }));
+                    return;
+                }
+                return sS(scoreD.data, "all");
             }
 
             if (score.split("-").length !== 3) {
@@ -233,8 +242,16 @@ export default Score = ({ route, navigation }) => {
                 return;
             }
             const ids = score.split("-");
-            const scoreD = (await getScore(ids[0], ids[1], ids[2], global.accountData.token)).data;
-            return sS(scoreD, "score");
+            const scoreD = await getScore(ids[0], ids[1], ids[2], global.accountData?.token);
+            if (!scoreD.data) {
+                setAlert(makeNeedLoginAlert(() => {
+                    navigation.goBack();
+                    setAlert(<></>);
+                    window.accountData = undefined;
+                }));
+                return;
+            }
+            return sS(scoreD.data, "score");
         }
 
         a();
@@ -411,15 +428,25 @@ export default Score = ({ route, navigation }) => {
             title={displayName}
             isBackAble={true}
             backEvent={() => navigation.goBack()}
+            extraButton={[
+                {
+                    key: "share",
+                    icon: "share-variant",
+                    onPress: () => {
+                        setAlert(showLoading());
+                    }
+                }
+            ]}
         >
             {alert}
                 {
                     displayChoise
                     ? <ScrollView style={{
                             overflow: "scroll",
-                            width: Dimensions.get("window").width - 30,
-                            marginBottom: 15
-                        }} horizontal={true}>
+                            width: Dimensions.get("window").width,
+                            marginBottom: 15,
+                            marginLeft: -10
+                        }} horizontal={true} showsHorizontalScrollIndicator={false}>
                             <SegmentedButtons
                                 value={showSubject}
                                 onValueChange={setShowSubject}
@@ -427,7 +454,9 @@ export default Score = ({ route, navigation }) => {
                                 style={{
                                     overflow: "scroll",
                                     width: "100%",
-                                    marginBottom: 15
+                                    marginBottom: 15,
+                                    paddingStart: 15,
+                                    paddingEnd: 15
                                 }}
                             />
                         </ScrollView>

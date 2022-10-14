@@ -154,7 +154,7 @@ export default Schedule = () => {
                     },
                     teacher: []
                 });
-            if (classNowIndex === -1)
+            if (classNowIndex < 0)
                 list.push({
                     className: "暫無課程",
                     section: "無",
@@ -164,17 +164,16 @@ export default Schedule = () => {
                     },
                     teacher: []
                 });
-            if (classNowIndex !== -2)
-                for (var i = classNowIndex + 1; i < scheduleF.length; i++) {
-                    if (!scheduleF[i]) continue;
-                    if (scheduleF[i].class[weekDay] === null) continue;
-                    if (!scheduleF[i].class[weekDay]) continue;
-                    list.push({
-                        ...scheduleF[i].class[weekDay],
-                        section: scheduleF[i].section,
-                        time: scheduleTime[i] ?? times[i]
-                    });
-                }
+            else for (var i = classNowIndex + 1; i < scheduleF.length; i++) {
+                if (!scheduleF[i]) continue;
+                if (scheduleF[i].class[weekDay] === null) continue;
+                if (!scheduleF[i].class[weekDay]) continue;
+                list.push({
+                    ...scheduleF[i].class[weekDay],
+                    section: scheduleF[i].section,
+                    time: scheduleTime[i] ?? times[i]
+                });
+            };
 
             list.push({
                 className: "放學",
@@ -262,9 +261,10 @@ export default Schedule = () => {
                 displayChoise
                 ? <ScrollView style={{
                         overflow: "scroll",
-                        width: Dimensions.get("window").width - 30,
-                        marginBottom: 15
-                    }} horizontal={true}>
+                        width: Dimensions.get("window").width,
+                        marginBottom: 15,
+                        marginLeft: -10
+                    }} horizontal={true} showsHorizontalScrollIndicator={false}>
                         <SegmentedButtons
                             value={type}
                             onValueChange={setType}
@@ -304,7 +304,9 @@ export default Schedule = () => {
                             style={{
                                 overflow: "scroll",
                                 width: "100%",
-                                marginBottom: 15
+                                marginBottom: 15,
+                                paddingStart: 15,
+                                paddingEnd: 15
                             }}
                         />
                     </ScrollView>

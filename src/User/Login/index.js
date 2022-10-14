@@ -57,7 +57,7 @@ export default Login = ({ navigation }) => {
             }));
         }
         const cap = await blobToBase64(await (await getLoginCaptcha(loginInfo.authToken)).blob());
-        setAlert(showInput("輸入驗證碼", <><Paragraph>您必須輸入驗證碼以登入成績查詢網站，您亦可購買我們的<Text style={{ fontWeight: "bold" }}>付費會員方案</Text>來自動輸入驗證碼。</Paragraph><Image source={{ uri: cap, width: "100%", height: 150 }} resizeMode="contain" style={{
+        setAlert(showInput("輸入驗證碼", <><Paragraph>您必須輸入驗證碼以登入成績查詢網站</Paragraph><Image source={{ uri: cap, width: "100%", height: 150 }} resizeMode="contain" style={{
             borderRadius: 15,
             width: "100%"
         }} /></>, {

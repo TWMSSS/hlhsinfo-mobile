@@ -13,5 +13,10 @@ module.exports = {
         inlineRequires: true,
       },
     }),
+  },
+  resolver: {
+    blockList: [
+      /\.git/gm
+    ]
   }
 };

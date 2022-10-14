@@ -17,12 +17,14 @@ export default Page = (prop = {
     extraButton: ([ ]),
     inner: "",
     style: {},
-    children: <></>
+    children: <></>,
+    scrollViewProps: {},
 }) => {
     prop = {
         extraButton: [],
         searchEvent: () => { },
         backEvent: () => { },
+        scrollViewProps: { },
         ...prop
     }
     return (
@@ -40,15 +42,15 @@ export default Page = (prop = {
                 top: 0,
                 // display: "flex"
             }}>
-                <ScrollView>
-                    {
+                <ScrollView {...prop.scrollViewProps}>
+                    {/* {
                         !prop.isNotShowBanner
                             ? <Banner
                                 visible={true}
                                 icon="test-tube"
                                 actions={[]}>您正在使用<Text style={{ fontWeight: "bold" }}>「花中查詢測試版」</Text>，因此我們無法提供您最佳的體驗! <Text style={{ fontWeight: "bold" }}>轉移至正式版以取得最佳體驗!</Text></Banner>
                             : <></>
-                    }
+                    } */}
                     <View style={{
                         display: "flex",
                         justifyContent: "center",
