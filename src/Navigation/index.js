@@ -79,6 +79,5 @@ export default Navigation = () => {
                 <Stack.Screen name='QRCodeScanner' component={QRCodeScanner} />
             </Stack.Navigator>
         </NavigationContainer>
-        
     );
 };

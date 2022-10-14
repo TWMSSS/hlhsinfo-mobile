@@ -24,7 +24,12 @@ export default RewAndPun = ({ navigation }) => {
                 return;
             }
 
-            t.data.detail.map(e => { return { ...e, id: Math.floor(Math.random() * 10000000) } });
+            t.data.detail = t.data.detail.map(e => {
+                return {
+                    ...e,
+                    id: Math.floor(Math.random() * 10000000)
+                }
+            });
 
             setRecord(t.data);
         }

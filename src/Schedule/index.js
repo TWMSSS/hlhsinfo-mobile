@@ -5,7 +5,8 @@ import {
     Paragraph,
     Button,
     ActivityIndicator,
-    SegmentedButtons
+    SegmentedButtons,
+    Divider
 } from "react-native-paper";
 import { useNavigation } from '@react-navigation/native';
 
@@ -204,10 +205,12 @@ export default Schedule = () => {
             }
 
             setDisplay(<>
-                <View style={{ borderBottomWidth: 1, borderBottomColor: getTheme().colors.outline, paddingBottom: 15 }}>
+                <View style={{ borderBottomWidth: 1 }}>
                     <Text variant="titleLarge" style={{ margin: 15 }}>當前課程</Text>
                     {dpList.shift()}
                 </View>
+
+                <Divider />
 
                 <View>
                     <Text variant="titleLarge" style={{ margin: 15 }}>剩餘課程</Text>

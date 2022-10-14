@@ -155,11 +155,9 @@ export const openLink = async (url) => {
 
 export const blobToBase64 = (blob) => {
     return new Promise((res) => {
-        const fileReader = new FileReader();
-        fileReader.onloadend = () => {
-            res(fileReader.result);
-        };
-        fileReader.readAsDataURL(blob);
+        const reader = new FileReader();
+        reader.onloadend = () => res(reader.result);
+        reader.readAsDataURL(blob);
     });
 }
 

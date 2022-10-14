@@ -1,17 +1,23 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import {
     Text,
     ActivityIndicator,
-    SegmentedButtons
+    SegmentedButtons,
+    Divider,
+    Card,
+    Portal,
+    Modal
 } from "react-native-paper";
-import { Dimensions, View, ScrollView, StyleSheet } from "react-native";
+import { Dimensions, View, ScrollView, StyleSheet, Image } from "react-native";
 import { PieChart, BarChart, LineChart, ProgressChart } from "react-native-chart-kit";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { BottomSheet } from "@gorhom/bottom-sheet";
+import BottomSheet, { BottomSheetScrollView, BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import Share from "react-native-share";
+import { Buffer } from "buffer";
 
-import { getAllScores, getScore, getShared } from "../../api/apis";
+import { getAllScores, getScore, getShared, getSharedImage, shareScore, shareScoreImage } from "../../api/apis";
 import Page from "../../Page";
-import { showAlert, chartConfig, getTheme, colorWithOpcy, makeNeedLoginAlert, showLoading } from "../../util";
+import { showAlert, chartConfig, getTheme, colorWithOpcy, makeNeedLoginAlert, showLoading, blobToBase64 } from "../../util";
 import ScoreCard from "./ScoreCard";
 
 export default Score = ({ route, navigation }) => {
@@ -31,6 +37,9 @@ export default Score = ({ route, navigation }) => {
     const [subjects, setSubjects] = useState([]);
     const [isRendered, setIsRendered] = useState(false);
     const [displayName, setDisplayName] = useState("成績查詢");
+    const [bottomSheetStatus, setBottomSheetStatus] = useState(-1);
+
+    const bottomSheetRef = useRef();
 
     chartConfig.backgroundGradientToOpacity = 0;
     chartConfig.backgroundGradientFromOpacity = 0;
@@ -79,6 +88,10 @@ export default Score = ({ route, navigation }) => {
             navigation.goBack();
         }));
         return;
+    }
+
+    function showBottomSheets() {
+        bottomSheetRef.current.expand();
     }
 
     function sS(scoreD, tp) {
@@ -211,6 +224,52 @@ export default Score = ({ route, navigation }) => {
             <Text variant="displayMedium" style={style.s}>{prop.display}</Text>
             <Text style={style.ss}>分</Text>
         </Md>);
+    }
+    function ShOption(prop) {
+        return (<>
+            <Card onPress={prop.onPress}>
+                <View style={{
+                    display: "flex",
+                    alignItems: "center",
+                    flexDirection: "row"
+                }}>
+                    { prop.icon && <MaterialCommunityIcons name={prop.icon} size={30} /> }
+                    <Text variant="headlineSmall"  style={{
+                        padding: 15,
+                    }}>{prop.text}</Text>
+                </View>
+            </Card>
+            <Divider />
+        </>)
+    }
+
+    function createQRCodeDisplay(qrcode) {
+        function hide() {
+            setAlert(<></>);
+        }
+        function Title(prop) {
+            return <Text variant="headlineSmall" style={{
+                color: getTheme().colors.outline
+            }}>{prop.children}</Text>
+        }
+
+        setAlert(
+            <Portal>
+                <Modal visible={true} onDismiss={hide} contentContainerStyle={{
+                    backgroundColor: getTheme().colors.background,
+                    padding: 30,
+                    margin: 20,
+                    borderRadius: 30
+                }}>
+                    <Title>QR Code</Title>
+                    <View>
+                        <Image source={{ uri: `https://chart.googleapis.com/chart?cht=qr&chs=512x512&chl=${qrcode}`, width: 512, height: 512 }} style={{
+                            width: "100%"
+                        }} resizeMode={"center"} />
+                    </View>
+                </Modal>
+            </Portal>
+        )
     }
 
     useEffect(() => {
@@ -393,6 +452,101 @@ export default Score = ({ route, navigation }) => {
         setDisplay(doc);
     }
 
+    async function shareScoreData(type) {
+        switch (type) {
+            case 0:
+                if (scoreData.isShared) {
+                    Share.open({
+                        title: "分享成績!",
+                        message: "這是我在花中查詢上查到的成績!",
+                        url: `https://hlhsinfo.ml/s/${score}`
+                    }).then(() => {}).catch(() => console.log("User cancel the share"));
+                    return;
+                }
+
+                var ids = score.split("-");
+                var scoreD = await shareScore(ids[0], ids[1], ids[2], global.accountData?.token);
+                if (!scoreD.data) {
+                    setAlert(makeNeedLoginAlert(() => {
+                        navigation.goBack();
+                        setAlert(<></>);
+                        window.accountData = undefined;
+                    }));
+                    return;
+                }
+
+                Share.open({
+                    title: "分享成績!",
+                    message: "這是我在花中查詢上查到的成績!",
+                    url: `https://hlhsinfo.ml/s/${scoreD.data.id}`
+                }).then(() => {}).catch(() => console.log("User cancel the share"));
+
+                break;
+            
+            case 1:
+                if (scoreData.isShared) {
+                    var data = await (await getSharedImage(score)).blob();
+                    try {
+                        data = (await blobToBase64(data)).replace("application/octet-stream", "image/png");
+                    } catch (err) {
+                        setAlert(showAlert("錯誤", "無法生成成績圖片!", "關閉", () => {
+                            setAlert(<></>);
+                        }));
+                        return;
+                    }
+                    Share.open({
+                        title: "分享成績!",
+                        message: "這是我在花中查詢上查到的成績!",
+                        filename: "score.png",
+                        type: "image/png",
+                        url: data,
+                        useInternalStorage: true
+                    }).then(() => {}).catch(() => console.log("User cancel the share"));
+                }
+
+                var ids = score.split("-");
+                var data = (await (await shareScoreImage(ids[0], ids[1], ids[2], global.accountData?.token)).blob());
+                try {
+                    data = (await blobToBase64(data)).replace("application/octet-stream", "image/png");
+                } catch (err) {
+                    setAlert(showAlert("錯誤", "無法生成成績圖片!", "關閉", () => {
+                        setAlert(<></>);
+                    }));
+                    return;
+                }
+
+                Share.open({
+                    title: "分享成績!",
+                    message: "這是我在花中查詢上查到的成績!",
+                    filename: "score.png",
+                    type: "image/png",
+                    url: data,
+                    useInternalStorage: true
+                }).then(() => {}).catch(() => console.log("User cancel the share"));
+                break;
+            
+            case 2:
+                if (scoreData.isShared) {
+                    createQRCodeDisplay(`https://hlhsinfo.ml/s/${score}`);
+                    return;
+                }
+
+                var ids = score.split("-");
+                var scoreD = await shareScore(ids[0], ids[1], ids[2], global.accountData?.token);
+                if (!scoreD.data) {
+                    setAlert(makeNeedLoginAlert(() => {
+                        navigation.goBack();
+                        setAlert(<></>);
+                        window.accountData = undefined;
+                    }));
+                    return;
+                }
+
+                createQRCodeDisplay(`https://hlhsinfo.ml/s/${scoreD.data.id}`);
+                break;
+        }
+    }
+
     if (!isRendered && scoreData.type) {
         if (subjects.length === 0) {
             var t = [];
@@ -424,21 +578,22 @@ export default Score = ({ route, navigation }) => {
     }
 
     return (
-        <Page
-            title={displayName}
-            isBackAble={true}
-            backEvent={() => navigation.goBack()}
-            extraButton={[
-                {
-                    key: "share",
-                    icon: "share-variant",
-                    onPress: () => {
-                        setAlert(showLoading());
+        <>
+            <Page
+                title={displayName}
+                isBackAble={true}
+                backEvent={() => navigation.goBack()}
+                extraButton={[
+                    {
+                        key: "share",
+                        icon: "share-variant",
+                        onPress: () => {
+                            showBottomSheets();
+                        }
                     }
-                }
-            ]}
-        >
-            {alert}
+                ]}
+            >
+                {alert}
                 {
                     displayChoise
                     ? <ScrollView style={{
@@ -463,6 +618,48 @@ export default Score = ({ route, navigation }) => {
                     : <></>
                 }
                 {display}
-        </Page>
+            </Page>
+            <BottomSheetModalProvider style={{
+                backgroundColor: "#000000A0"
+            }}>
+                <BottomSheet
+                    ref={bottomSheetRef}
+                    index={bottomSheetStatus}
+                    enabledGestureInteraction={true}
+                    enablePanDownToClose={true}
+                    snapPoints={["25%", "50%"]}
+                    style={{
+                        backgroundColor: "#000000A0"
+                    }}
+                    backgroundStyle={{
+                        backgroundColor: getTheme().colors.background
+                    }}
+                    handleIndicatorStyle={{
+                        backgroundColor: getTheme().colors.onBackground
+                    }}
+                    containerStyle={{
+                        backgroundColor: bottomSheetStatus !== -1 ? "#000000A0" : "#00000000",
+                        marginTop: -80
+                    }}
+                    onChange={(e) => setBottomSheetStatus(e)}
+                >
+                    <View style={{
+                        margin: 15
+                    }}>
+                        <Text variant="headlineLarge">成績分享</Text>
+                        
+                    </View>
+
+                    <BottomSheetScrollView style={{
+                        margin: 15
+                    }}>
+                        <ShOption text="以連結分享" icon="link" onPress={() => shareScoreData(0)} />
+                        <ShOption text="以圖片分享" icon="image" onPress={() => shareScoreData(1)} />
+                        <ShOption text="以 QR Code 分享" icon="qrcode" onPress={() => shareScoreData(2)} />
+                    </BottomSheetScrollView>
+                        
+                </BottomSheet>
+            </BottomSheetModalProvider>
+        </>
     )
 }

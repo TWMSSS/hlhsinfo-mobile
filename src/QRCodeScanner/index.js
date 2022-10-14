@@ -66,6 +66,7 @@ export default QRCodeScanner = ({ navigation }) => {
     const path = barcode.split("//")[1];
     if (isHLHSInfoURL(barcode) && path.includes("/s/")) {
         setBarcode("");
+        setIsScanned(true);
         navigation.navigate("Home", {
             screen: "search",
             params: {

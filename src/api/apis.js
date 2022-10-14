@@ -88,3 +88,32 @@ export const getRewAndPun = async (token) => {
 export const getSharedImage = async (sharedid) => {
     return await HTTPRequest(defaultAPIURL + APIs.sharedImg + `?shared=${sharedid}`);
 }
+
+export const shareScore = async (year, term, times, token) => {
+    return await JSONHTTP(defaultAPIURL + APIs.share, token, {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            year,
+            term,
+            times,
+            examName: ""
+        })
+    });
+}
+
+export const shareScoreImage = async (year, term, times, token) => {
+    return await JSONHTTP(defaultAPIURL + APIs.share, token, {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            year,
+            term,
+            times
+        })
+    });
+}

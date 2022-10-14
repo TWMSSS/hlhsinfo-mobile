@@ -139,8 +139,8 @@ android {
         applicationId "ml.hlhsinfo.twa"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 8
-        versionName "alpha-ver-0.5"
+        versionCode 9
+        versionName "beta-ver-0.1"
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
 
         if (isNewArchitectureEnabled()) {
