@@ -30,7 +30,7 @@ export default Profile = ({ navigation }) => {
             }} />
             var list = [];
             for (var g of scores.data) {
-                list.push(<ProfileCard key={g.name + Math.floor(Math.random() * 1000)} title={g.name} data={<Text variant="displaySmall" style={{ fontWeight: "bold" }}>{g.value.trim().length !== 0 ? g.value : "(不適用)"}</Text>} />);
+                list.push(<ProfileCard key={g.name + Math.floor(Math.random() * 1000)} title={g.name} data={<Text variant="headlineSmall" style={{ fontWeight: "bold" }}>{g.value.trim().length !== 0 ? g.value : "(不適用)"}</Text>} />);
             }
 
             setDisplay([profileImg, ...list]);

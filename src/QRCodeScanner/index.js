@@ -121,7 +121,9 @@ export default QRCodeScanner = ({ navigation }) => {
                         alignItems: "center",
                         justifyContent: "center"
                     }}>
-                        <View>
+                        <View style={{
+                            margin: 30
+                        }}>
                             <Text variant="headlineLarge" style={{
                                 marginBottom: 15,
                                 color: "#fff"

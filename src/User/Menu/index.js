@@ -54,7 +54,7 @@ export default Menu = ({ navigation }) => {
                 width: 100,
                 borderRadius: 100,
             }} />)
-        setLogined(false);
+        setLogined(login);
     }
 
     function logout() {
@@ -71,73 +71,67 @@ export default Menu = ({ navigation }) => {
         }))
     }
 
-    useEffect(() => {
-        async function b() {
-            var logindata = await Keychain.getGenericPassword();
-            if (logindata && !global.accountData ||
-                logindata && !global.accountData.schoolNumber) {
-                var loginToken = (await getLoginInfo()).authToken;
-                var cap = await blobToBase64(await (await getLoginCaptcha(loginToken)).blob());
-                var captcha = "";
-                async function close() {
+    async function b() {
+        var logindata = await Keychain.getGenericPassword();
+        if (logindata && !global.accountData ||
+            logindata && !global.accountData.schoolNumber) {
+            var loginToken = (await getLoginInfo()).authToken;
+            var cap = await blobToBase64(await (await getLoginCaptcha(loginToken)).blob());
+            var captcha = "";
+            async function close() {
+                setAlert(<></>);
+                var d = await login(logindata.username, logindata.password, captcha, loginToken);
+                if (d.authtoken) {
+                    global.accountData = {
+                        token: d.authtoken
+                    };
+                    global.accountData = {
+                        ...global.accountData,
+                        ...(await getUserInfoShort(global.accountData.token)).data
+                    };
+                    setLoginStatus(true);
+                    return;
+                }
+                setAlert(showAlert("登入失敗", <>伺服器回傳: {d.serverMessage ?? d.message}</>, "確定", () => {
                     setAlert(<></>);
-                    var d = await login(logindata.username, logindata.password, captcha, loginToken);
-                    if (d.authtoken) {
-                        global.accountData = {
-                            token: d.authtoken
-                        };
-                        global.accountData = {
-                            ...global.accountData,
-                            ...(await getUserInfoShort(global.accountData.token)).data
-                        };
-                        setLogined(true);
-                        return;
-                    }
-                    setAlert(showAlert("登入失敗", <>伺服器回傳: {d.serverMessage ?? d.message}</>, "確定", () => {
-                        setAlert(<></>);
-                        setLoginStatus(false);
-                    }));
-                }
-                function setCap(text) {
-                    captcha = text;
-                }
-                setAlert(showInput("輸入驗證碼", <><Paragraph>您先前已經登入成功過了，現在只需要輸入驗證碼即可登入!</Paragraph><Image source={{ uri: cap, width: "100%", height: 150 }} resizeMode="contain" style={{
-                    borderRadius: 15,
-                    width: "100%"
-                }} /></>, {
-                    title: "驗證碼",
-                    onChangeText: setCap
-                }, "確定", close));
-            } else if (!logindata && !global.accountData) {
-                setLoginStatus(false);
+                    setLoginStatus(false);
+                }));
             }
-
-            var t = setInterval(() => {
-                async function a() {
-                    if (global.accountData && global.accountData.schoolNumber) {
-                        clearInterval(t);
-                        var data = (await getUserInfo(global.accountData.token)).data;
-                        global.accountData.userImg = data.profileImg;
-                        setLoginStatus(true);
-                    }
-                };
-                a();
-            }, 200);
+            function setCap(text) {
+                captcha = text;
+            }
+            setAlert(showInput("輸入驗證碼", <><Paragraph>您先前已經登入成功過了，現在只需要輸入驗證碼即可登入!</Paragraph><Image source={{ uri: cap, width: "100%", height: 150 }} resizeMode="contain" style={{
+                borderRadius: 15,
+                width: "100%"
+            }} /></>, {
+                title: "驗證碼",
+                onChangeText: setCap
+            }, "確定", close));
+        } else if (!logindata && !global.accountData) {
+            setLoginStatus(false);
         }
 
+        var t = setInterval(() => {
+            async function a() {
+                if (global.accountData && global.accountData.schoolNumber) {
+                    clearInterval(t);
+                    var data = (await getUserInfo(global.accountData.token)).data;
+                    global.accountData.userImg = data.profileImg;
+                    setLoginStatus(true);
+                }
+            };
+            a();
+        }, 200);
+    }
+
+    useEffect(() => {
         if (typeof global.accountData === "undefined") b();
     }, []);
 
     useEffect(() => {
         var t = setInterval(() => {
             if (typeof global.accountData === "undefined" && logined) {
-                setUsername("登入");
-                setUserImg(<MaterialCommunityIcons name="account" size={100} style={{
-                    backgroundColor: getTheme().colors.primary,
-                    color: getTheme().colors.onPrimary,
-                    width: 100,
-                    borderRadius: 100,
-                }} />);
+                setLoginStatus(false);
                 b();
             }
         }, 500);

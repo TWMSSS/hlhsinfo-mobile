@@ -81,7 +81,7 @@ export default class AppIntro extends React.Component {
         return (
             <View style={{ ...styles.slides, backgroundColor: item.backgroundColor }}>
                 <View style={styles.inSlides}>
-                    <Text variant="displayLarge" style={{ fontWeight: "bold", color: "#fff" }}>{item.title}</Text>
+                    <Text variant="displayMedium" style={{ fontWeight: "bold", color: "#fff", lineHeight: 60, letterSpacing: 8 }}>{item.title}</Text>
                     <View style={{ overflow: "hidden", height: "80%", width: Dimensions.get("screen").width }}>
                         <Image style={styles.introImg} source={item.image} resizeMode="center" />
                     </View>
