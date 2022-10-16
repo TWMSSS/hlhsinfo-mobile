@@ -4,17 +4,17 @@ import { View, ScrollView } from "react-native";
 import { getRewAndPun } from "../../api/apis";
 
 import Page from "../../Page";
-import { makeNeedLoginAlert, getTheme } from "../../util";
+import { makeNeedLoginAlert, getTheme, showLoading } from "../../util";
 
 export default RewAndPun = ({ navigation }) => {
     const [record, setRecord] = useState();
-    const [alert, setAlert] = useState(<></>);
+    const [alert, setAlert] = useState(showLoading());
     const [page, setPage] = useState(0);
     const PageView = 10;
     
     useEffect(() => {
         async function a() {
-            var t = await getRewAndPun(window.accountData.token);
+            var t = await getRewAndPun(window.accountData?.token);
             if (!t.data) {
                 setAlert(makeNeedLoginAlert(() => {
                     navigation.goBack();
@@ -32,6 +32,7 @@ export default RewAndPun = ({ navigation }) => {
             });
 
             setRecord(t.data);
+            setAlert(<></>);
         }
         a();
     }, []);

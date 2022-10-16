@@ -5,12 +5,12 @@ import { Dimensions, View } from "react-native";
 import { Text, DataTable } from "react-native-paper";
 
 import Page from "../../Page";
-import { colorWithOpcy, getTheme, chartConfig, makeNeedLoginAlert, className } from "../../util";
+import { getTheme, chartConfig, makeNeedLoginAlert, className, showLoading } from "../../util";
 import LackCard from "./LackCard";
 
 export default Lack = ({ navigation }) => {
     const [lack, setLack] = useState();
-    const [alert, setAlert] = useState(<></>);
+    const [alert, setAlert] = useState(showLoading());
     const [page, setPage] = useState(0);
 
     const PageView = 10;
@@ -28,6 +28,7 @@ export default Lack = ({ navigation }) => {
             }
 
             setLack(data.data);
+            setAlert(<></>);
         }
         a();
     }, []);

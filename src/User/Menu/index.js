@@ -3,7 +3,8 @@ import { View, Image } from "react-native";
 import {
     Text,
     Card,
-    Paragraph
+    Paragraph,
+    Divider
 } from "react-native-paper";
 import Keychain from 'react-native-keychain';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -15,7 +16,9 @@ import {
     showInput,
     blobToBase64,
     showConfirm,
-    openLink
+    openLink,
+    removeLocal,
+    showSnackBar
 } from "../../util";
 import SelectCard from "../../SelectCard";
 import {
@@ -65,7 +68,7 @@ export default Menu = ({ navigation }) => {
             }
             
             Keychain.resetGenericPassword();
-            setAlert(<></>);
+            setAlert(showSnackBar("已登出當前帳號，重新輸入帳號密碼即可登入。", [], () => setAlert(<></>)));
             setLoginStatus(false);
             global.accountData = undefined;
         }))
@@ -75,7 +78,25 @@ export default Menu = ({ navigation }) => {
         var logindata = await Keychain.getGenericPassword();
         if (logindata && !global.accountData ||
             logindata && !global.accountData.schoolNumber) {
-            var loginToken = (await getLoginInfo()).authToken;
+            
+            try {
+                var loginToken = await getLoginInfo();
+            } catch (err) {
+                if (err.message === "Network request failed") {
+                    setAlert(showSnackBar("需要網路連線以登入至花中查詢", [], () => setAlert(<></>)));
+                    setLoginStatus(false);
+                    setUsername("需要網路連線");
+                    return;
+                }
+            }
+            
+            if (!loginToken.authToken) {
+                setAlert(showSnackBar("登入失敗次數過多，請稍後再嘗試!", [], () => setAlert(<></>)));
+                setLoginStatus(false);
+                return;
+            }
+
+            loginToken = loginToken.authToken;
             var cap = await blobToBase64(await (await getLoginCaptcha(loginToken)).blob());
             var captcha = "";
             async function close() {
@@ -97,15 +118,14 @@ export default Menu = ({ navigation }) => {
                     setLoginStatus(false);
                 }));
             }
-            function setCap(text) {
-                captcha = text;
-            }
+            const setCap = (text) => captcha = text;
             setAlert(showInput("輸入驗證碼", <><Paragraph>您先前已經登入成功過了，現在只需要輸入驗證碼即可登入!</Paragraph><Image source={{ uri: cap, width: "100%", height: 150 }} resizeMode="contain" style={{
                 borderRadius: 15,
                 width: "100%"
             }} /></>, {
                 title: "驗證碼",
-                onChangeText: setCap
+                onChangeText: setCap,
+                type: "decimal-pad"
             }, "確定", close));
         } else if (!logindata && !global.accountData) {
             setLoginStatus(false);
@@ -141,6 +161,14 @@ export default Menu = ({ navigation }) => {
         }
     }, [logined]);
 
+    function G(prop) {
+        return (<View>
+            <Text variant="headlineMedium" style={{ margin: 10 }}>{prop.title}</Text>
+            {prop.children}
+            <Divider style={{ marginBottom: 10 }} />
+        </View>);
+    }
+
     return (
         <>
             {alert}
@@ -173,14 +201,34 @@ export default Menu = ({ navigation }) => {
                         {username}
                     </Text>
                 </Card>
-                <View style={{
-                    // height: 300,
-                    margin: 15
-                }}>
-                    <SelectCard title={<><MaterialCommunityIcons name="currency-usd" size={30} /> 支持我們!</>} onPress={() => navigation.navigate("Support")} />
-                    <SelectCard title={<><MaterialCommunityIcons name="chart-box" size={30} /> 伺服器狀態</>} onPress={() => openLink("https://hlhsinfo.ml/status.html")} />
-                    <SelectCard title={<><MaterialCommunityIcons name="certificate" size={30} /> 開放原始碼授權</>} onPress={() => navigation.navigate("License")} />
-                    <SelectCard title={<><MaterialCommunityIcons name="github" size={30} /> Github 專案</>} onPress={() => openLink("https://github.com/TWMSSS/hlhsinfo-mobile")} />
+                <View style={{ margin: 15 }}>
+                    <G title="實用功能">
+                        <SelectCard title={<><MaterialCommunityIcons name="arrow-top-right" size={30} /> 學習歷程平台</>} onPress={() => openLink("http://210.62.247.21/ePortFolio/")} />
+                        <SelectCard title={<><MaterialCommunityIcons name="arrow-top-right" size={30} /> 自主學習計畫平台</>} onPress={() => openLink("https://web.jhenggao.com/iLearning/Login.aspx")} />
+                        <SelectCard title={<><MaterialCommunityIcons name="arrow-top-right" size={30} /> 重補修選課系統</>} onPress={() => openLink("http://shinher.hlhs.hlc.edu.tw/winrh/default.asp")} />
+                        <SelectCard title={<><MaterialCommunityIcons name="arrow-top-right" size={30} /> 線上查詢系統</>} onPress={() => openLink("http://shinher.hlhs.hlc.edu.tw/online")} />
+                    </G>
+                    <G title="開源軟體">
+                        <SelectCard title={<><MaterialCommunityIcons name="certificate" size={30} /> 開放原始碼授權</>} onPress={() => navigation.navigate("License")} />
+                        <SelectCard title={<><MaterialCommunityIcons name="transit-connection-variant" size={30} /> 了解運行方式</>} onPress={() => openLink("https://github.com/TWMSSS/hlhsinfo/blob/master/HowToAnalysis.md")} />
+                        <SelectCard title={<><MaterialCommunityIcons name="github" size={30} /> Github 專案</>} onPress={() => openLink("https://github.com/TWMSSS/hlhsinfo-mobile")} />
+                    </G>
+                    <G title="其他">
+                        <SelectCard title={<><MaterialCommunityIcons name="currency-usd" size={30} /> 支持我們!</>} onPress={() => navigation.navigate("Support")} />
+                        <SelectCard title={<><MaterialCommunityIcons name="chart-box" size={30} /> 伺服器狀態</>} onPress={() => openLink("https://hlhsinfo.ml/status.html")} />
+                        <SelectCard title={<><MaterialCommunityIcons name="trash-can" size={30} /> 清除課表</>} onPress={() => {
+                            setAlert(showConfirm("清除課程表", "您確定要清除課程表? 您清除後依舊可以重新取得課程表。", "清除", "取消", async (type) => {
+                                if (!type) {
+                                    setAlert(<></>);
+                                    return;
+                                }
+
+                                await removeLocal("@data/schedule");
+                                setAlert(showAlert("清除課程表", "已清除課程表，重新啟動應用程式即可。", "確定", () => setAlert(<></>)));
+                            }))
+                        }} />
+                    </G>
+                        
                     {/* <SelectCard title={<><MaterialCommunityIcons name="cog" size={30} /> 設定</>} /> */}
                 </View>
             </Page>

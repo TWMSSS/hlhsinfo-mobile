@@ -10,7 +10,8 @@ import {
     MD3LightTheme,
     TextInput,
     ActivityIndicator,
-    Text
+    Text,
+    Snackbar
 } from "react-native-paper";
 import {
     Appearance,
@@ -93,7 +94,8 @@ export const showConfirm = (title, description, allowText = "確認", denyText =
 
 export const showInput = (title, description, input = {
     title: "",
-    onChangeText: () => { }
+    onChangeText: () => { },
+    type: "default"
 }, closeText = "確認", onPress = () => { }) => {
     return (
         <Portal>
@@ -107,6 +109,7 @@ export const showInput = (title, description, input = {
                         label={input.title}
                         onChangeText={(text) => input.onChangeText(text)}
                         mode="outlined"
+                        keyboardType={input.type}
                     />
                 </Dialog.Content>
                 <Dialog.Actions>
@@ -117,6 +120,21 @@ export const showInput = (title, description, input = {
             </Dialog>
         </Portal>
     );
+}
+
+export const showSnackBar = (content, actions, onDismiss) => {
+    return (
+        <Portal>
+            <Snackbar
+                visible={true}
+                onDismiss={onDismiss}
+                action={actions}
+                style={{
+                    marginBottom: 90
+                }}
+            >{content}</Snackbar>
+        </Portal>
+    )
 }
 
 export const isReactFragment = (variableToInspect) => {
@@ -254,4 +272,17 @@ export const QRCodeDisplay = (prop = {
             </Modal>
         </Portal>
     )
+}
+
+export const netErrList = (err) => {
+    const errList = {
+        "net::ERR_INTERNET_DISCONNECTED": "需要有網路連線以開啟學校官網。",
+        "net::ERR_NAME_NOT_RESOLVED": "DNS伺服器無法解析此網域。",
+        "net::ERR_TIMED_OUT": "網頁連線超時。",
+        "net::ERR_CONNECTION_TIMED_OUT": "網頁連線超時，可能是您目前的網路環境連線速度過慢。",
+        "net::ERR_CONNECTION_FAILED": "網頁連線失敗，這可能是暫時性的錯誤。",
+        "net::ERR_CONNECTION_REFUSED": "連線已被重置，請再試一次。"
+    };
+
+    return errList[err] ?? `未知錯誤，請向開發者提交錯誤。錯誤ID: ${err.nativeEvent.description}`;
 }

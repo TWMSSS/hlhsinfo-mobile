@@ -2,14 +2,12 @@ import { useState, useRef } from "react";
 import { View, Image } from "react-native";
 import { Paragraph, Text, TextInput, Button } from "react-native-paper";
 import Keychain from 'react-native-keychain';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import Page from "../../Page";
-import { getTheme, openLink, showInput, blobToBase64, showAlert } from "../../util";
+import { getTheme, openLink, showInput, blobToBase64, showAlert, showLoading } from "../../util";
 import { login, getLoginCaptcha, getLoginInfo, getUserInfoShort } from "../../api/apis";
 
 export default Login = ({ navigation }) => {
-    const [showPassword, setShowPassword] = useState(false);
     const [password, setPassword] = useState("");
     const [username, setUsername] = useState("");
     const [buttonDisable, setButtonDisable] = useState(false);
@@ -18,13 +16,22 @@ export default Login = ({ navigation }) => {
 
     async function cL() {
         if (!username || !password) {
-            setAlert(showAlert("通知", <>您必須輸入學號與密碼，才得以進行下一步驟!</>, "確定", () => {
-                setAlert(<></>);
-            }));
+            setAlert(showAlert("通知", <>您必須輸入學號與密碼，才得以進行下一步驟!</>, "確定", () => setAlert(<></>)));
             return;
         }
         setButtonDisable(true);
-        var loginInfo = await getLoginInfo();
+
+        try {
+            var loginInfo = await getLoginInfo();
+        } catch (err) {
+            if (err.message === "Network request failed") {
+                setAlert(showAlert("需要網路連線", <>登入至花中查詢必須要有網路連線!</>, "確定", () => {
+                    setAlert(<></>);
+                    setButtonDisable(false);
+                }));
+                return;
+            }
+        }
         if (!loginInfo.authToken) {
             setAlert(showAlert("登入失敗", <>登入失敗次數過多，請稍後再嘗試!</>, "確定", () => {
                 setAlert(<></>);
@@ -33,13 +40,12 @@ export default Login = ({ navigation }) => {
             return;
         }
         var captcha = "";
-        function setCap(cap) {
-            captcha = cap;
-        }
+        const setCap = (text) => captcha = text;
         async function close() {
-            setAlert(<></>);
+            setAlert(showLoading());
             var d = await login(username, password, captcha, loginInfo.authToken);
             if (d.authtoken) {
+                setAlert(<></>);
                 global.accountData = {
                     token: d.authtoken
                 };
@@ -62,16 +68,16 @@ export default Login = ({ navigation }) => {
             width: "100%"
         }} /></>, {
             title: "驗證碼",
-            onChangeText: setCap
+            onChangeText: setCap,
+            type: "decimal-pad"
         }, "確定", close));
-        // navigation.goBack();
     }
 
     return (
         <>
             {alert}
             <Page
-                title="登入"
+                title="登入至花中查詢"
                 isBackAble={true}
                 backEvent={() => navigation.goBack()}
             >
@@ -91,8 +97,8 @@ export default Login = ({ navigation }) => {
                     <TextInput
                         label={"密碼"}
                         autoComplete="password"
-                        keyboardType={showPassword ? "visible-password" : "password"}
-                        secureTextEntry={!showPassword}
+                        keyboardType={"password"}
+                        secureTextEntry={true}
                         mode="outlined"
                         style={{
                             marginBottom: 15

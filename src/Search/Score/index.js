@@ -8,6 +8,7 @@ import { Dimensions, View, ScrollView } from "react-native";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import BottomSheet, { BottomSheetScrollView, BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import Share from "react-native-share";
+import { Buffer } from "buffer";
 
 import { getAllScores, getScore, getShared, getSharedImage, shareScore, shareScoreImage } from "../../api/apis";
 import Page from "../../Page";
@@ -50,7 +51,7 @@ export default Score = ({ route, navigation }) => {
     }
 
     function sS(scoreD, tp, scoreID) {
-        if (!scoreD) {
+        if (!scoreD || scoreD.data.length === 0) {
             return notFound();
         }
 
@@ -321,7 +322,7 @@ export default Score = ({ route, navigation }) => {
                     return;
                 }
 
-                var data = (await (await shareScoreImage(scoreData.scoreID[0], scoreData.scoreID[1], scoreData.scoreID[2], global.accountData?.token)).blob());
+                var data = await (await shareScoreImage(scoreData.scoreID[0], scoreData.scoreID[1], scoreData.scoreID[2], global.accountData?.token)).blob();
                 try {
                     data = (await blobToBase64(data)).replace("application/octet-stream", "image/png");
                 } catch (err) {
@@ -435,7 +436,7 @@ export default Score = ({ route, navigation }) => {
                     index={bottomSheetStatus}
                     enabledGestureInteraction={true}
                     enablePanDownToClose={true}
-                    snapPoints={["25%", "50%"]}
+                    snapPoints={["25%", "50%", "75%"]}
                     style={{
                         backgroundColor: "#000000A0"
                     }}

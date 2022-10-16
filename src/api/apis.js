@@ -99,7 +99,7 @@ export const shareScore = async (year, term, times, token) => {
             year,
             term,
             times,
-            examName: ""
+            examName: Math.random().toString()
         })
     });
 }
