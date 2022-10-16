@@ -2,4 +2,5 @@
     <string name="app_name">\u82b1\u4e2d\u67e5\u8a62</string>
     <string name="app_name_eng">HLHSInfo</string>
     <string name="hlhsinfo_sharing">\u67e5\u770b\u5df2\u5206\u4eab\u7684\u6210\u7e3e</string>
+    <string name="hlhsinfo_opening">\u4f7f\u7528\u82b1\u4e2d\u67e5\u8a62\u61c9\u7528\u958b\u555f</string>
 </resources>

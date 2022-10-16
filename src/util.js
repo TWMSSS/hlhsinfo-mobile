@@ -5,7 +5,7 @@ import {
     Paragraph,
     Dialog,
     Portal,
-    Provider,
+    Modal,
     MD3DarkTheme,
     MD3LightTheme,
     TextInput,
@@ -16,7 +16,8 @@ import {
     Appearance,
     Linking,
     Alert,
-    View
+    View,
+    Image
 } from "react-native";
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 
@@ -224,4 +225,33 @@ export const makeNeedLoginAlert = (callback) => {
 export const className = (classTime) => {
     var k = ["早修", "升旗", "第一節", "第二節", "第三節", "第四節", "午修", "第五節", "第六節", "第七節", "第八節", "降旗", "第九節", "第十節", "第十一節", "第十二節"];
     return k[classTime];
+}
+
+export const QRCodeDisplay = (prop = {
+    onDismiss: () => { },
+    data: ""
+}) => {
+    function Title(prop) {
+        return <Text variant="headlineSmall" style={{
+            color: getTheme().colors.outline
+        }}>{prop.children}</Text>
+    }
+
+    return (
+        <Portal>
+            <Modal visible={true} onDismiss={prop.onDismiss} contentContainerStyle={{
+                backgroundColor: getTheme().colors.background,
+                padding: 30,
+                margin: 20,
+                borderRadius: 30
+            }}>
+                <Title>QR Code</Title>
+                <View>
+                    <Image source={{ uri: `https://chart.googleapis.com/chart?cht=qr&chs=512x512&chl=${prop.data}`, width: 512, height: 512 }} style={{
+                        width: "100%"
+                    }} resizeMode={"center"} />
+                </View>
+            </Modal>
+        </Portal>
+    )
 }

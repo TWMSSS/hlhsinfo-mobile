@@ -92,7 +92,8 @@ export default QRCodeScanner = ({ navigation }) => {
                 style={{
                     flex: 1,
                     width: "100%",
-                    marginTop: -15
+                    marginTop: -15,
+                    paddingBottom: 0
                 }}
                 isNotShowBanner={true}
             >

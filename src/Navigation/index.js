@@ -26,6 +26,22 @@ export default Navigation = () => {
         }
 
         useEffect(() => {
+            Linking.addEventListener('url', ({ url }) => {
+                setOpenedLink(url);
+                url = url.split("//")[1];
+
+                navigation.navigate("Home", {
+                    screen: "search",
+                    params: {
+                        screen: "Score",
+                        params: {
+                            score: url.split("/")[2]
+                        },
+                        initial: false
+                    }
+                });
+            })
+
             async function a() {
                 var u = await Linking.getInitialURL();
                 if (u === null || u === openedLink) return;
@@ -46,6 +62,10 @@ export default Navigation = () => {
             }
 
             a();
+
+            return () => {
+                Linking.removeAllListeners("url");
+            }
         })
 
         return (

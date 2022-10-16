@@ -59,6 +59,7 @@ export default Page = (prop = {
                     }}>
                         <View style={{
                             width: "95%",
+                            paddingBottom: 15,
                             ...prop.style
                         }}>
                             {prop.children}

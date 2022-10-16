@@ -3,7 +3,7 @@ import { ActivityIndicator } from "react-native-paper";
 import SelectCard from "../../SelectCard";
 
 import Page from "../../Page";
-import { getTheme, makeNeedLoginAlert, openLink, showAlert } from "../../util";
+import { getTheme, makeNeedLoginAlert, openLink } from "../../util";
 import { getAllScoresList } from "../../api/apis";
 
 export default ScoreList = ({ navigation }) => {

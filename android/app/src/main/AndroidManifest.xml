@@ -25,19 +25,32 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter android:label="@string/hlhsinfo_sharing">
+
+            <intent-filter android:label="@string/hlhsinfo_sharing" android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https"
-                    android:host="hlhsinfo.ml"
-                    android:pathPrefix="/s/" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="hlhsinfo.ml" android:pathPrefix="/s/" />
             </intent-filter>
+
+            <intent-filter android:label="@string/hlhsinfo_opening" android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="hlhsinfo.ml" />
+            </intent-filter>
+
             <intent-filter android:label="filter_react_native">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="deeplink" android:host="hlhsinfo" />
+                <data android:scheme="hlhsinfo" android:host="hlhsinfo" />
             </intent-filter>
         </activity>
 

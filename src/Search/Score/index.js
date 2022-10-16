@@ -1,24 +1,19 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
     Text,
     ActivityIndicator,
-    SegmentedButtons,
-    Divider,
-    Card,
-    Portal,
-    Modal
+    SegmentedButtons
 } from "react-native-paper";
-import { Dimensions, View, ScrollView, StyleSheet, Image } from "react-native";
-import { PieChart, BarChart, LineChart, ProgressChart } from "react-native-chart-kit";
+import { Dimensions, View, ScrollView } from "react-native";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import BottomSheet, { BottomSheetScrollView, BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import Share from "react-native-share";
-import { Buffer } from "buffer";
 
 import { getAllScores, getScore, getShared, getSharedImage, shareScore, shareScoreImage } from "../../api/apis";
 import Page from "../../Page";
-import { showAlert, chartConfig, getTheme, colorWithOpcy, makeNeedLoginAlert, showLoading, blobToBase64 } from "../../util";
+import { showAlert, getTheme, makeNeedLoginAlert, showLoading, blobToBase64, QRCodeDisplay } from "../../util";
 import ScoreCard from "./ScoreCard";
+import * as ScoreUtil from "./util";
 
 export default Score = ({ route, navigation }) => {
     const { score } = route.params;
@@ -29,7 +24,8 @@ export default Score = ({ route, navigation }) => {
         },
         type: "",
         ranking: [],
-        isShared: !!0
+        isShared: !!0,
+        scoreID: ""
     });
     const [alert, setAlert] = useState(<></>);
     const [displayChoise, setDisplayChoise] = useState(false);
@@ -40,47 +36,6 @@ export default Score = ({ route, navigation }) => {
     const [bottomSheetStatus, setBottomSheetStatus] = useState(-1);
 
     const bottomSheetRef = useRef();
-
-    chartConfig.backgroundGradientToOpacity = 0;
-    chartConfig.backgroundGradientFromOpacity = 0;
-    chartConfig.propsForVerticalLabels = {
-        fontSize: "30"
-    }
-
-    function mCCF(color) {
-        return {
-            ...chartConfig,
-            color: (opcy = 1) => colorWithOpcy(color, opcy)
-        };
-    }
-
-    const style = StyleSheet.create({
-        f: {
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-        },
-        d: {
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "baseline",
-        },
-        p: {
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "baseline",
-            marginTop: 30
-        },
-        s: {
-            fontWeight: "bold",
-            marginLeft: 15
-        },
-        ss: {
-            color: getTheme().colors.outline,
-            marginLeft: 5,
-            overflow: "hidden"
-        }
-    })
 
     function notFound() {
         setAlert(showAlert("找不到成績", "無法找尋該成績", "返回", () => {
@@ -94,7 +49,7 @@ export default Score = ({ route, navigation }) => {
         bottomSheetRef.current.expand();
     }
 
-    function sS(scoreD, tp) {
+    function sS(scoreD, tp, scoreID) {
         if (!scoreD) {
             return notFound();
         }
@@ -106,7 +61,8 @@ export default Score = ({ route, navigation }) => {
             score: scoreD,
             type: tp,
             ranking,
-            isShared: !!scoreD.userInfo
+            isShared: !!scoreD.userInfo,
+            scoreID
         }
 
         if (d.isShared) {
@@ -127,149 +83,11 @@ export default Score = ({ route, navigation }) => {
         changeDisplay();
     }
 
-    // Functions for display blocks
-    function M(prop) {
-        return (
-            <View style={style.p}>
-                {prop.children}
-            </View>
-        )
-    }
-    function MdB(prop) {
-        return (<M>
-            <Text variant="displayMedium" style={{
-                ...style.s,
-                marginLeft: 0
-            }} onPress={() => sH(prop.name)}>{prop.name}</Text>
-            <Text variant="headlineSmall" style={{
-                ...style.ss,
-                marginLeft: 0
-            }}>{prop.desc}</Text>
-        </M>)
-    }
-    function MdP(prop) {
-        return (<M>
-            <View style={style.f}>
-                <ProgressChart
-                    data={{
-                        data: prop.data
-                    }}
-                    height={100}
-                    width={100}
-                    strokeWidth={16}
-                    radius={32}
-                    chartConfig={chartConfig}
-                    hideLegend={true}
-                />
-                <View style={style.d}>
-                    <Text variant="displayMedium" style={style.s}>{prop.display}</Text>
-                    <Text style={style.ss}>分</Text>
-                </View>
-            </View>
-            <Text variant="headlineSmall" style={{
-                ...style.ss,
-                marginLeft: 0
-            }}>{prop.desc}</Text>
-        </M>)
-    }
-    function MsP(prop) {
-        return (<>
-            <Text variant="headlineSmall" style={{
-                margin: 15
-            }}>{prop.title}</Text>
-            <View style={style.f}>
-                {prop.children}
-            </View>
-        </>)
-    }
-    function MdPT(prop) {
-        return (<MsP title={prop.title}>
-            <ProgressChart
-                data={{
-                    data: prop.data
-                }}
-                height={100}
-                width={100}
-                strokeWidth={16}
-                radius={32}
-                chartConfig={prop.chartConfig ?? chartConfig}
-                hideLegend={true}
-            />
-            <View style={style.d}>
-                <Text variant="displayMedium" style={style.s}>{prop.display}</Text>
-                <Text style={style.ss}>分</Text>
-            </View>
-        </MsP>)
-    }
-    function Md(prop) {
-        return (<M>
-            <Text variant="headlineSmall" style={{
-                ...style.ss,
-                marginLeft: 0
-            }}>{prop.title}</Text>
-            <View style={style.d}>
-                {prop.children}
-            </View>
-        </M>);
-    }
-    function Mr(prop) {
-        return (<Md title={prop.title}>
-            <Text style={style.ss}>第</Text>
-            <Text variant="displayMedium" style={style.s}>{prop.display}</Text>
-            <Text style={style.ss}>名</Text>
-        </Md>);
-    }
-    function MrP(prop) {
-        return (<Md title={prop.title}>
-            <Text variant="displayMedium" style={style.s}>{prop.display}</Text>
-            <Text style={style.ss}>分</Text>
-        </Md>);
-    }
-    function ShOption(prop) {
-        return (<>
-            <Card onPress={prop.onPress}>
-                <View style={{
-                    display: "flex",
-                    alignItems: "center",
-                    flexDirection: "row"
-                }}>
-                    { prop.icon && <MaterialCommunityIcons name={prop.icon} size={30} /> }
-                    <Text variant="headlineSmall"  style={{
-                        padding: 15,
-                    }}>{prop.text}</Text>
-                </View>
-            </Card>
-            <Divider />
-        </>)
-    }
-
     function createQRCodeDisplay(qrcode) {
         function hide() {
             setAlert(<></>);
         }
-        function Title(prop) {
-            return <Text variant="headlineSmall" style={{
-                color: getTheme().colors.outline
-            }}>{prop.children}</Text>
-        }
-
-        setAlert(
-            <Portal>
-                <Modal visible={true} onDismiss={hide} contentContainerStyle={{
-                    backgroundColor: getTheme().colors.background,
-                    padding: 30,
-                    margin: 20,
-                    borderRadius: 30
-                }}>
-                    <Title>QR Code</Title>
-                    <View>
-                        <Image source={{ uri: `https://chart.googleapis.com/chart?cht=qr&chs=512x512&chl=${qrcode}`, width: 512, height: 512 }} style={{
-                            width: "100%"
-                        }} resizeMode={"center"} />
-                    </View>
-                </Modal>
-            </Portal>
-        )
+        setAlert(<QRCodeDisplay onDismiss={hide} data={qrcode} />);
     }
 
     useEffect(() => {
@@ -288,12 +106,12 @@ export default Score = ({ route, navigation }) => {
                     }));
                     return;
                 }
-                return sS(scoreD.data, "all");
+                return sS(scoreD.data, "all", "all");
             }
 
             if (score.split("-").length !== 3) {
                 const scoreD = (await getShared(score)).data;
-                return sS(scoreD, "score");
+                return sS(scoreD, "score", score);
             }
 
             if (!global.accountData) {
@@ -310,7 +128,7 @@ export default Score = ({ route, navigation }) => {
                 }));
                 return;
             }
-            return sS(scoreD.data, "score");
+            return sS(scoreD.data, "score", ids);
         }
 
         a();
@@ -324,25 +142,25 @@ export default Score = ({ route, navigation }) => {
             var minSubj =scoreData.score.data.reduce((a, b) => {
                 return (a.score < b.score) ? a : b
             });
-            var doc = <>
+            setDisplay(<>
                 <ScoreCard
                     subject="總覽"
                     score={<>
                         <View>
-                            <MdB name={maxSubj.name} desc={<>
+                            <ScoreUtil.MdB name={maxSubj.name} desc={<>
                                 是您成績中<Text style={{
                                     color: "#36d646",
                                     fontWeight: "bold"
                                 }}>最佳</Text>的科目
-                            </>} />
-                            <MdB name={minSubj.name} desc={<>
+                            </>} onPress={() => sH(maxSubj.name)} />
+                            <ScoreUtil.MdB name={minSubj.name} desc={<>
                                 是您成績中<Text style={{
                                     color: getTheme().colors.onErrorContainer,
                                     fontWeight: "bold"
                                 }}>最差</Text>的科目
-                            </>} />
+                            </>} onPress={() => sH(minSubj.name)} />
 
-                            <MdP
+                            <ScoreUtil.MdP
                                 data={[(Number(scoreData.score.extra.find(e => e.type === "平均").value) / 100)]}
                                 display={scoreData.score.extra.find(e => e.type === "平均").value}
                                 desc={<>
@@ -350,7 +168,7 @@ export default Score = ({ route, navigation }) => {
                                         color: getTheme().colors.secondary
                                     }}>平均分數</Text>
                                 </>} />
-                            <MdP
+                            <ScoreUtil.MdP
                                 data={[(Number(scoreData.score.extra.find(e => e.type === "總分").value) / (scoreData.score.data.length * 100))]}
                                 display={scoreData.score.extra.find(e => e.type === "總分").value}
                                 desc={<>
@@ -365,53 +183,50 @@ export default Score = ({ route, navigation }) => {
                 <ScoreCard
                     subject="排名"
                     score={<>
-                        <Mr title="班級排名" display={scoreData.score.extra.find(e => e.type === "排名")?.value ?? "不適用"} />
-                        <Mr title="年級排名" display={scoreData.score.extra.find(e => e.type === "年級排名")?.value ?? "不適用"} />
-                        <Mr title="科別排名" display={scoreData.score.extra.find(e => e.type === "科別排名")?.value ?? "不適用"} />
-                        <Mr title="類組排名" display={scoreData.score.extra.find(e => e.type === "類組排名")?.value ?? "不適用"} />
+                        <ScoreUtil.Mr title="班級排名" display={scoreData.score.extra.find(e => e.type === "排名")?.value ?? "不適用"} />
+                        <ScoreUtil.Mr title="年級排名" display={scoreData.score.extra.find(e => e.type === "年級排名")?.value ?? "不適用"} />
+                        <ScoreUtil.Mr title="科別排名" display={scoreData.score.extra.find(e => e.type === "科別排名")?.value ?? "不適用"} />
+                        <ScoreUtil.Mr title="類組排名" display={scoreData.score.extra.find(e => e.type === "類組排名")?.value ?? "不適用"} />
                     </>}
                 />
-            </>
-
-            setDisplay(doc);
+            </>);
             return;
         }
         var subj = scoreData.score.data[scoreData.score.data.findIndex(e => e.name === showSubject)];
-        var isUnpass = {
-            score: scoreData.score.unpass.findIndex(e => e.name === subj.name && e.type === "score") !== -1,
-            gpa: scoreData.score.unpass.findIndex(e => e.name === subj.name && e.type === "gpa") !== -1 || Number(subj.gpa) < 60
-        }
         var data = {
             userAverage: Number(scoreData.score.extra.find(e => e.type === "平均").value),
             average: Number(subj.gpa),
             userScore: Number(subj.score),
-            rank: scoreData.ranking.findIndex(e => e.name === subj.name) + 1
+            rank: scoreData.ranking.findIndex(e => e.name === subj.name) + 1,
+            isUnpass: {
+                score: scoreData.score.unpass.findIndex(e => e.name === subj.name && e.type === "score") !== -1,
+                gpa: scoreData.score.unpass.findIndex(e => e.name === subj.name && e.type === "gpa") !== -1 || Number(subj.gpa) < 60
+            },
+            userScoreAndAverage: 1,
+            userScoreAndUserAverage: 1
         }
-        data = {
-            ...data,
-            userScoreAndAverage: data.userScore === data.average ? 1 : (data.userScore > data.average ? 2 : 0),
-            userScoreAndUserAverage: data.userScore === data.userAverage ? 1 : (data.userScore > data.userAverage ? 2 : 0),
-        }
-        var doc = <>
+        data.userScoreAndAverage = data.userScore === data.average ? 1 : (data.userScore > data.average ? 2 : 0);
+        data.userScoreAndUserAverage = data.userScore === data.userAverage ? 1 : (data.userScore > data.userAverage ? 2 : 0);
+        setDisplay(<>
             <ScoreCard key={subj.name + subj.score} subject={subj.name} score={<>
                 <View>
-                    <MdPT
+                    <ScoreUtil.MdPT
                         data={[data.userScore / 100]}
                         title="您的成績"
                         display={<Text style={{
-                            color: !isUnpass.score ? "" : getTheme().colors.error
+                            color: !data.isUnpass.score ? "" : getTheme().colors.error
                         }}>{subj.score}</Text>}
                         chartConfig={
-                            !isUnpass.score ? chartConfig : mCCF(getTheme().colors.error)
+                            !data.isUnpass.score ? ScoreUtil.getChartConfig() : ScoreUtil.mCCF(getTheme().colors.error)
                         } />
-                    <MdPT
+                    <ScoreUtil.MdPT
                         data={[data.average / 100]}
                         title="班級平均"
                         display={<Text style={{
-                            color: !isUnpass.gpa ? "" : getTheme().colors.error
+                            color: !data.isUnpass.gpa ? "" : getTheme().colors.error
                         }}>{subj.gpa}</Text>}
                         chartConfig={
-                            !isUnpass.gpa ? chartConfig : mCCF(getTheme().colors.error)
+                            !data.isUnpass.gpa ? ScoreUtil.getChartConfig() : ScoreUtil.mCCF(getTheme().colors.error)
                         } />
                 </View>
             </>} />
@@ -419,11 +234,11 @@ export default Score = ({ route, navigation }) => {
             <ScoreCard
                 subject="詳細資訊"
                 score={<>
-                    <Mr title={<>在您<Text style={{
+                    <ScoreUtil.Mr title={<>在您<Text style={{
                         color: getTheme().colors.secondary
                     }}>所有成績中</Text>排</>} display={data.rank} />
 
-                    <MrP title={<>與<Text style={{
+                    <ScoreUtil.MrP title={<>與<Text style={{
                         color: getTheme().colors.secondary
                     }}>班級的平均</Text>差距</>} display={<Text style={{
                         color: data.userScoreAndAverage === 0 ? getTheme().colors.error : ""
@@ -434,7 +249,7 @@ export default Score = ({ route, navigation }) => {
                                 ? "chevron-down"
                                 : "check-circle"
                     } size={45} /> {(Math.abs(data.average - data.userScore)).toFixed(2)}</Text>} />
-                    <MrP title={<>與<Text style={{
+                    <ScoreUtil.MrP title={<>與<Text style={{
                         color: getTheme().colors.secondary
                     }}>您的總平均</Text>差距</>} display={<Text style={{
                         color: data.userScoreAndUserAverage === 0 ? getTheme().colors.error : ""
@@ -447,25 +262,26 @@ export default Score = ({ route, navigation }) => {
                     } size={45} /> {(Math.abs(data.userAverage - data.userScore)).toFixed(2)}</Text>} />
                 </>}
             />
-        </>;
-
-        setDisplay(doc);
+        </>);
     }
 
     async function shareScoreData(type) {
         switch (type) {
             case 0:
-                if (scoreData.isShared) {
+                function genLink(scoreID) {
                     Share.open({
                         title: "分享成績!",
                         message: "這是我在花中查詢上查到的成績!",
-                        url: `https://hlhsinfo.ml/s/${score}`
-                    }).then(() => {}).catch(() => console.log("User cancel the share"));
+                        url: `https://hlhsinfo.ml/s/${scoreID}`
+                    }).then(() => console.log("User share the score.")).catch(() => console.log("User cancel the share."));
+                }
+                
+                if (scoreData.isShared) {
+                    genLink(score);
                     return;
                 }
 
-                var ids = score.split("-");
-                var scoreD = await shareScore(ids[0], ids[1], ids[2], global.accountData?.token);
+                var scoreD = await shareScore(scoreData.scoreID[0], scoreData.scoreID[1], scoreData.scoreID[2], global.accountData?.token);
                 if (!scoreD.data) {
                     setAlert(makeNeedLoginAlert(() => {
                         navigation.goBack();
@@ -474,16 +290,23 @@ export default Score = ({ route, navigation }) => {
                     }));
                     return;
                 }
-
-                Share.open({
-                    title: "分享成績!",
-                    message: "這是我在花中查詢上查到的成績!",
-                    url: `https://hlhsinfo.ml/s/${scoreD.data.id}`
-                }).then(() => {}).catch(() => console.log("User cancel the share"));
-
+                genLink(scoreD.data.id);
                 break;
             
             case 1:
+                setAlert(showLoading());
+                function genImage(base64) {
+                    setAlert(<></>);
+                    Share.open({
+                        title: "分享成績!",
+                        message: "這是我在花中查詢上查到的成績!",
+                        filename: "score.png",
+                        type: "image/png",
+                        url: base64,
+                        useInternalStorage: true
+                    }).then(() => console.log("User share the score.")).catch(() => console.log("User cancel the share"));
+                }
+                
                 if (scoreData.isShared) {
                     var data = await (await getSharedImage(score)).blob();
                     try {
@@ -494,18 +317,11 @@ export default Score = ({ route, navigation }) => {
                         }));
                         return;
                     }
-                    Share.open({
-                        title: "分享成績!",
-                        message: "這是我在花中查詢上查到的成績!",
-                        filename: "score.png",
-                        type: "image/png",
-                        url: data,
-                        useInternalStorage: true
-                    }).then(() => {}).catch(() => console.log("User cancel the share"));
+                    genImage(data);
+                    return;
                 }
 
-                var ids = score.split("-");
-                var data = (await (await shareScoreImage(ids[0], ids[1], ids[2], global.accountData?.token)).blob());
+                var data = (await (await shareScoreImage(scoreData.scoreID[0], scoreData.scoreID[1], scoreData.scoreID[2], global.accountData?.token)).blob());
                 try {
                     data = (await blobToBase64(data)).replace("application/octet-stream", "image/png");
                 } catch (err) {
@@ -514,15 +330,7 @@ export default Score = ({ route, navigation }) => {
                     }));
                     return;
                 }
-
-                Share.open({
-                    title: "分享成績!",
-                    message: "這是我在花中查詢上查到的成績!",
-                    filename: "score.png",
-                    type: "image/png",
-                    url: data,
-                    useInternalStorage: true
-                }).then(() => {}).catch(() => console.log("User cancel the share"));
+                genImage(data);
                 break;
             
             case 2:
@@ -653,9 +461,9 @@ export default Score = ({ route, navigation }) => {
                     <BottomSheetScrollView style={{
                         margin: 15
                     }}>
-                        <ShOption text="以連結分享" icon="link" onPress={() => shareScoreData(0)} />
-                        <ShOption text="以圖片分享" icon="image" onPress={() => shareScoreData(1)} />
-                        <ShOption text="以 QR Code 分享" icon="qrcode" onPress={() => shareScoreData(2)} />
+                        <ScoreUtil.ShOption text="以連結分享" icon="link" onPress={() => shareScoreData(0)} />
+                        <ScoreUtil.ShOption text="以圖片分享" icon="image" onPress={() => shareScoreData(1)} />
+                        <ScoreUtil.ShOption text="以 QR Code 分享" icon="qrcode" onPress={() => shareScoreData(2)} />
                     </BottomSheetScrollView>
                         
                 </BottomSheet>
