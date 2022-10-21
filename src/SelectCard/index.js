@@ -1,13 +1,13 @@
-import React from "react";
 import {
     Text,
-    Card,
-    MD3Colors
+    Card
 } from "react-native-paper";
+import { View } from "react-native";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+
 import { getTheme } from "../util";
 
-export default SelectCard = ({ title, onPress, style = {
+export default SelectCard = ({ title, onPress, icon, style = {
     color: getTheme().colors.onBackground
 } }) =>
     <Card elevation={1} onPress={onPress} style={{
@@ -16,9 +16,14 @@ export default SelectCard = ({ title, onPress, style = {
         ...style
     }}>
         <Card.Content style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexDirection: "row" }}>
-            <Text variant="headlineLarge" style={{
-                color: style.color ?? ""
-            }}>{title}</Text>
+            <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                {icon && <MaterialCommunityIcons name={icon} size={35} color={getTheme().colors.onBackground} />}
+                <Text variant="headlineLarge" style={{
+                    color: style.color ?? "",
+                    marginLeft: icon ? 10 : 0
+                }}>{title}</Text>
+            </View>
+                
             <MaterialCommunityIcons
                 name="greater-than"
                 size={45}

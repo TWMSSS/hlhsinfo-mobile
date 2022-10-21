@@ -117,3 +117,7 @@ export const shareScoreImage = async (year, term, times, token) => {
         })
     });
 }
+
+export const getNotify = async () => {
+    return await JSONHTTP(defaultAPIURL + APIs.notify);
+}

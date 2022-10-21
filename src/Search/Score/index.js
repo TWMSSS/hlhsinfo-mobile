@@ -4,11 +4,10 @@ import {
     ActivityIndicator,
     SegmentedButtons
 } from "react-native-paper";
-import { Dimensions, View, ScrollView } from "react-native";
+import { Dimensions, View, ScrollView, LayoutAnimation } from "react-native";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import BottomSheet, { BottomSheetScrollView, BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import Share from "react-native-share";
-import { Buffer } from "buffer";
 
 import { getAllScores, getScore, getShared, getSharedImage, shareScore, shareScoreImage } from "../../api/apis";
 import Page from "../../Page";
@@ -18,7 +17,6 @@ import * as ScoreUtil from "./util";
 
 export default Score = ({ route, navigation }) => {
     const { score } = route.params;
-    const [display, setDisplay] = useState(<ActivityIndicator animating={true} />);
     const [scoreData, setScoreData] = useState({
         score: {
             data: []
@@ -26,15 +24,18 @@ export default Score = ({ route, navigation }) => {
         type: "",
         ranking: [],
         isShared: !!0,
-        scoreID: ""
+        scoreID: "",
+        scoreAna: {},
+        maxSubject: "",
+        minSubject: ""
     });
     const [alert, setAlert] = useState(<></>);
-    const [displayChoise, setDisplayChoise] = useState(false);
     const [showSubject, setShowSubject] = useState("overview");
     const [subjects, setSubjects] = useState([]);
-    const [isRendered, setIsRendered] = useState(false);
     const [displayName, setDisplayName] = useState("成績查詢");
     const [bottomSheetStatus, setBottomSheetStatus] = useState(-1);
+
+    var display = <ActivityIndicator animating={true} />;
 
     const bottomSheetRef = useRef();
 
@@ -56,32 +57,56 @@ export default Score = ({ route, navigation }) => {
         }
 
         var ranking = [...scoreD.data];
-        ranking.sort((a, b) => a.score - b.score);
+        ranking.sort((a, b) =>Number(b.score) - Number(a.score));
 
         var d = {
             score: scoreD,
             type: tp,
             ranking,
             isShared: !!scoreD.userInfo,
-            scoreID
+            scoreID,
+            scoreAna: {},
+            maxSubject: "",
+            minSubject: ""
+        };
+
+        d.maxSubject = d.score.data.reduce((a, b) => {
+            return (a.score > b.score) ? a : b
+        }).name;
+        d.minSubject = d.score.data.reduce((a, b) => {
+            return (a.score < b.score) ? a : b
+        }).name;
+
+        for (var h of d.score.data) {
+            var data = {
+                userAverage: Number(d.score.extra.find(e => e.type === "平均").value),
+                average: Number(h.gpa),
+                userScore: Number(h.score),
+                rank: d.ranking.findIndex(e => e.name === h.name) + 1,
+                isUnpass: {
+                    score: d.score.unpass.findIndex(e => e.name === h.name && e.type === "score") !== -1,
+                    gpa: d.score.unpass.findIndex(e => e.name === h.name && e.type === "gpa") !== -1 || Number(h.gpa) < 60
+                },
+                userScoreAndAverage: 1,
+                userScoreAndUserAverage: 1,
+            }
+            data.userScoreAndAverage = data.userScore === data.average ? 1 : (data.userScore > data.average ? 2 : 0);
+            data.userScoreAndUserAverage = data.userScore === data.userAverage ? 1 : (data.userScore > data.userAverage ? 2 : 0);
+
+            d.scoreAna[h.name] = data;
         }
 
         if (d.isShared) {
-            setDisplayName(`${d.score.userInfo.userName ?? schoolNumber} (${d.score.userInfo.schoolNumber}) 的成績分享`)
+            setDisplayName(`${d.score.userInfo.userName ?? schoolNumber} (${d.score.userInfo.schoolNumber}) 的成績分享`);
         }
 
-        setScoreData(d);
-        setDisplayChoise(true);
-        return;
-    }
 
-    function changeDisplay() {
-        setIsRendered(false);
+        setScoreData(d);
+        return;
     }
 
     function sH(type) {
         setShowSubject(type);
-        changeDisplay();
     }
 
     function createQRCodeDisplay(qrcode) {
@@ -136,14 +161,15 @@ export default Score = ({ route, navigation }) => {
     }, []);
 
     function mD() {
+        LayoutAnimation.configureNext({
+            ...LayoutAnimation.Presets.spring,
+            duration: 200
+        });
+
         if (showSubject === "overview") {
-            var maxSubj = scoreData.score.data.reduce((a, b) => {
-                return (a.score > b.score) ? a : b
-            });
-            var minSubj =scoreData.score.data.reduce((a, b) => {
-                return (a.score < b.score) ? a : b
-            });
-            setDisplay(<>
+            var maxSubj = scoreData.score.data.find(e => e.name === scoreData.maxSubject);
+            var minSubj = scoreData.score.data.find(e => e.name === scoreData.minSubject);
+            display = <>
                 <ScoreCard
                     subject="總覽"
                     score={<>
@@ -170,7 +196,7 @@ export default Score = ({ route, navigation }) => {
                                     }}>平均分數</Text>
                                 </>} />
                             <ScoreUtil.MdP
-                                data={[(Number(scoreData.score.extra.find(e => e.type === "總分").value) / (scoreData.score.data.length * 100))]}
+                                data={[((Number(scoreData.score.extra.find(e => e.type === "總分").value) / (scoreData.score.data.length * 100)))]}
                                 display={scoreData.score.extra.find(e => e.type === "總分").value}
                                 desc={<>
                                     是您的<Text style={{
@@ -190,29 +216,17 @@ export default Score = ({ route, navigation }) => {
                         <ScoreUtil.Mr title="類組排名" display={scoreData.score.extra.find(e => e.type === "類組排名")?.value ?? "不適用"} />
                     </>}
                 />
-            </>);
+            </>;
             return;
         }
-        var subj = scoreData.score.data[scoreData.score.data.findIndex(e => e.name === showSubject)];
-        var data = {
-            userAverage: Number(scoreData.score.extra.find(e => e.type === "平均").value),
-            average: Number(subj.gpa),
-            userScore: Number(subj.score),
-            rank: scoreData.ranking.findIndex(e => e.name === subj.name) + 1,
-            isUnpass: {
-                score: scoreData.score.unpass.findIndex(e => e.name === subj.name && e.type === "score") !== -1,
-                gpa: scoreData.score.unpass.findIndex(e => e.name === subj.name && e.type === "gpa") !== -1 || Number(subj.gpa) < 60
-            },
-            userScoreAndAverage: 1,
-            userScoreAndUserAverage: 1
-        }
-        data.userScoreAndAverage = data.userScore === data.average ? 1 : (data.userScore > data.average ? 2 : 0);
-        data.userScoreAndUserAverage = data.userScore === data.userAverage ? 1 : (data.userScore > data.userAverage ? 2 : 0);
-        setDisplay(<>
+
+        var subj = scoreData.score.data.find(e => e.name === showSubject);
+        var data = scoreData.scoreAna[showSubject];
+        display = <>
             <ScoreCard key={subj.name + subj.score} subject={subj.name} score={<>
                 <View>
                     <ScoreUtil.MdPT
-                        data={[data.userScore / 100]}
+                        data={[(data.userScore / 100)]}
                         title="您的成績"
                         display={<Text style={{
                             color: !data.isUnpass.score ? "" : getTheme().colors.error
@@ -221,7 +235,7 @@ export default Score = ({ route, navigation }) => {
                             !data.isUnpass.score ? ScoreUtil.getChartConfig() : ScoreUtil.mCCF(getTheme().colors.error)
                         } />
                     <ScoreUtil.MdPT
-                        data={[data.average / 100]}
+                        data={[(data.average / 100)]}
                         title="班級平均"
                         display={<Text style={{
                             color: !data.isUnpass.gpa ? "" : getTheme().colors.error
@@ -263,7 +277,7 @@ export default Score = ({ route, navigation }) => {
                     } size={45} /> {(Math.abs(data.userAverage - data.userScore)).toFixed(2)}</Text>} />
                 </>}
             />
-        </>);
+        </>;
     }
 
     async function shareScoreData(type) {
@@ -301,7 +315,7 @@ export default Score = ({ route, navigation }) => {
                     Share.open({
                         title: "分享成績!",
                         message: "這是我在花中查詢上查到的成績!",
-                        filename: "score.png",
+                        filename: "score",
                         type: "image/png",
                         url: base64,
                         useInternalStorage: true
@@ -356,34 +370,28 @@ export default Score = ({ route, navigation }) => {
         }
     }
 
-    if (!isRendered && scoreData.type) {
+    if (scoreData.type && scoreData.score.data.length !== 0) {
         if (subjects.length === 0) {
             var t = [];
             t.push({
                 value: 'overview',
                 label: "總覽",
-                icon: "view-dashboard",
-                onPress: changeDisplay
+                icon: "view-dashboard"
             })
             for (var g of scoreData.score.data) {
                 t.push({
                     value: g.name,
-                    label: g.name,
-                    onPress: changeDisplay
+                    label: g.name
                 });
             }
 
             setSubjects(t);
         }
-        switch (scoreData.type) {
-            case "all":
-                break;
-            
-            case "score":
-                mD();
-                break;
-        }
-        setIsRendered(true);
+        const type = {
+            all: () => { },
+            score: () => mD()
+        };
+        (type[scoreData.type] ?? (() => console.error(`[Type Error] Unknown score type: ${scoreData.type}`)))();
     }
 
     return (
@@ -403,29 +411,25 @@ export default Score = ({ route, navigation }) => {
                 ]}
             >
                 {alert}
-                {
-                    displayChoise
-                    ? <ScrollView style={{
+                <ScrollView style={{
+                    overflow: "scroll",
+                    width: Dimensions.get("window").width,
+                    marginBottom: 15,
+                    marginLeft: -10
+                }} horizontal={true} showsHorizontalScrollIndicator={false}>
+                    <SegmentedButtons
+                        value={showSubject}
+                        onValueChange={setShowSubject}
+                        buttons={subjects}
+                        style={{
                             overflow: "scroll",
-                            width: Dimensions.get("window").width,
+                            width: "100%",
                             marginBottom: 15,
-                            marginLeft: -10
-                        }} horizontal={true} showsHorizontalScrollIndicator={false}>
-                            <SegmentedButtons
-                                value={showSubject}
-                                onValueChange={setShowSubject}
-                                buttons={subjects}
-                                style={{
-                                    overflow: "scroll",
-                                    width: "100%",
-                                    marginBottom: 15,
-                                    paddingStart: 15,
-                                    paddingEnd: 15
-                                }}
-                            />
-                        </ScrollView>
-                    : <></>
-                }
+                            paddingStart: 15,
+                            paddingEnd: 15
+                        }}
+                    />
+                </ScrollView>
                 {display}
             </Page>
             <BottomSheetModalProvider style={{

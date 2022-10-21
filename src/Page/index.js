@@ -4,7 +4,7 @@ import {
     Appbar,
     Banner,
 } from "react-native-paper";
-import { View, ScrollView, SafeAreaView, Dimensions } from "react-native";
+import { View, ScrollView, SafeAreaView } from "react-native";
 
 export default Page = (prop = {
     title: "",
@@ -39,8 +39,7 @@ export default Page = (prop = {
                 
             <SafeAreaView style={{
                 marginBottom: 110,
-                top: 0,
-                // display: "flex"
+                top: 0
             }}>
                 <ScrollView {...prop.scrollViewProps}>
                     {/* {

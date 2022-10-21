@@ -5878,6 +5878,11 @@ react-native-gradle-plugin@^0.70.3:
   resolved "https://registry.npmjs.org/react-native-gradle-plugin/-/react-native-gradle-plugin-0.70.3.tgz"
   integrity sha512-oOanj84fJEXUg9FoEAQomA8ISG+DVIrTZ3qF7m69VQUJyOGYyDZmPqKcjvRku4KXlEH6hWO9i4ACLzNBh8gC0A==
 
+react-native-iap@^12.3.0:
+  version "12.3.0"
+  resolved "https://registry.yarnpkg.com/react-native-iap/-/react-native-iap-12.3.0.tgz#f322adb35d8e3ddb6450487cafc27ce2377a6069"
+  integrity sha512-pHJ1dx2w7ZcSGzagE58tXBYeebi8wC3JPRSfTDLnJDlZBVRF3Ho/vt/XW7YAGABct5B5D/PKGxuDtQMpoLv1ew==
+
 react-native-inappbrowser-reborn@^3.7.0:
   version "3.7.0"
   resolved "https://registry.npmjs.org/react-native-inappbrowser-reborn/-/react-native-inappbrowser-reborn-3.7.0.tgz"

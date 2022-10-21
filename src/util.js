@@ -276,7 +276,7 @@ export const QRCodeDisplay = (prop = {
 
 export const netErrList = (err) => {
     const errList = {
-        "net::ERR_INTERNET_DISCONNECTED": "需要有網路連線以開啟學校官網。",
+        "net::ERR_INTERNET_DISCONNECTED": "需要有網路連線以開啟此網站。",
         "net::ERR_NAME_NOT_RESOLVED": "DNS伺服器無法解析此網域。",
         "net::ERR_TIMED_OUT": "網頁連線超時。",
         "net::ERR_CONNECTION_TIMED_OUT": "網頁連線超時，可能是您目前的網路環境連線速度過慢。",

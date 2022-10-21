@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ScrollView, View, Dimensions } from "react-native";
+import { ScrollView, View, Dimensions, LayoutAnimation } from "react-native";
 import {
     Text,
     Paragraph,
@@ -12,7 +12,6 @@ import { useNavigation } from '@react-navigation/native';
 
 import { getAllSchedule, getSchedule } from "../api/apis";
 import {
-    getTheme,
     readLocal,
     replaceClassTime,
     saveLocal
@@ -38,6 +37,12 @@ export default Schedule = () => {
 
     if (type !== "def" && !rendered && schedule && displayChoise) {
         changeDisplay();
+
+        LayoutAnimation.configureNext({
+            ...LayoutAnimation.Presets.spring,
+            duration: 200
+        });
+
         var weekDay = Number(type) - 1;
         var list = [];
         for (var i = 0; i < schedule.length; i++) {
@@ -127,6 +132,11 @@ export default Schedule = () => {
         });
 
         function load() {
+            LayoutAnimation.configureNext({
+                ...LayoutAnimation.Presets.spring,
+                duration: 200
+            });
+
             var classNowIndex = scheduleF.findIndex(b => Date.now() > b.time.start && Date.now() < b.time.end);
             var isNotClass = false;
             if (classNowIndex === -1) {

@@ -36,4 +36,7 @@ export const APIs = {
     share: "/shareScore",
     sharedScore: "/getShared",
     sharedImg: "/getScoreImg",
+
+    // Notification
+    notify: "/notify"
 }

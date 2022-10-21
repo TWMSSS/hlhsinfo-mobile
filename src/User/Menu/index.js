@@ -203,20 +203,20 @@ export default Menu = ({ navigation }) => {
                 </Card>
                 <View style={{ margin: 15 }}>
                     <G title="實用功能">
-                        <SelectCard title={<><MaterialCommunityIcons name="arrow-top-right" size={30} /> 學習歷程平台</>} onPress={() => openLink("http://210.62.247.21/ePortFolio/")} />
-                        <SelectCard title={<><MaterialCommunityIcons name="arrow-top-right" size={30} /> 自主學習計畫平台</>} onPress={() => openLink("https://web.jhenggao.com/iLearning/Login.aspx")} />
-                        <SelectCard title={<><MaterialCommunityIcons name="arrow-top-right" size={30} /> 重補修選課系統</>} onPress={() => openLink("http://shinher.hlhs.hlc.edu.tw/winrh/default.asp")} />
-                        <SelectCard title={<><MaterialCommunityIcons name="arrow-top-right" size={30} /> 線上查詢系統</>} onPress={() => openLink("http://shinher.hlhs.hlc.edu.tw/online")} />
+                        <SelectCard title="學習歷程平台" icon="arrow-top-right" onPress={() => openLink("http://210.62.247.21/ePortFolio/")} />
+                        <SelectCard title="自主學習計畫平台" icon="arrow-top-right" onPress={() => openLink("https://web.jhenggao.com/iLearning/Login.aspx")} />
+                        <SelectCard title="重補修選課系統" icon="arrow-top-right" onPress={() => openLink("http://shinher.hlhs.hlc.edu.tw/winrh/default.asp")} />
+                        <SelectCard title="線上查詢系統" icon="arrow-top-right" onPress={() => openLink("http://shinher.hlhs.hlc.edu.tw/online")} />
                     </G>
                     <G title="開源軟體">
-                        <SelectCard title={<><MaterialCommunityIcons name="certificate" size={30} /> 開放原始碼授權</>} onPress={() => navigation.navigate("License")} />
-                        <SelectCard title={<><MaterialCommunityIcons name="transit-connection-variant" size={30} /> 了解運行方式</>} onPress={() => openLink("https://github.com/TWMSSS/hlhsinfo/blob/master/HowToAnalysis.md")} />
-                        <SelectCard title={<><MaterialCommunityIcons name="github" size={30} /> Github 專案</>} onPress={() => openLink("https://github.com/TWMSSS/hlhsinfo-mobile")} />
+                        <SelectCard title="開放原始碼授權" icon="certificate" onPress={() => navigation.navigate("License")} />
+                        <SelectCard title="了解運行方式" icon="transit-connection-variant" onPress={() => openLink("https://github.com/TWMSSS/hlhsinfo/blob/master/HowToAnalysis.md")} />
+                        <SelectCard title="Github 專案" icon="github" onPress={() => openLink("https://github.com/TWMSSS/hlhsinfo-mobile")} />
                     </G>
                     <G title="其他">
-                        <SelectCard title={<><MaterialCommunityIcons name="currency-usd" size={30} /> 支持我們!</>} onPress={() => navigation.navigate("Support")} />
-                        <SelectCard title={<><MaterialCommunityIcons name="chart-box" size={30} /> 伺服器狀態</>} onPress={() => openLink("https://hlhsinfo.ml/status.html")} />
-                        <SelectCard title={<><MaterialCommunityIcons name="trash-can" size={30} /> 清除課表</>} onPress={() => {
+                        <SelectCard title="支持我們!" icon="currency-usd" onPress={() => navigation.navigate("Support")} />
+                        <SelectCard title="伺服器狀態" icon="chart-box" onPress={() => openLink("https://hlhsinfo.ml/status.html")} />
+                        <SelectCard title="清除課表" icon="trash-can" onPress={() => {
                             setAlert(showConfirm("清除課程表", "您確定要清除課程表? 您清除後依舊可以重新取得課程表。", "清除", "取消", async (type) => {
                                 if (!type) {
                                     setAlert(<></>);
