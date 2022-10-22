@@ -109,7 +109,10 @@ export default Schedule = () => {
         var scheduleF = schedulea.map(e => {
             if (!e) return null;
             const todayTime = new Date();
-            todayTime.setUTCHours(0, 0, 0, 0);
+            todayTime.setHours(0);
+            todayTime.setMinutes(0);
+            todayTime.setSeconds(0);
+            todayTime.setMilliseconds(0);
 
             var startTime = e.time.start;
             var endTime = e.time.end;
@@ -120,8 +123,6 @@ export default Schedule = () => {
             todayTime.setHours(Number(startTime[0]));
             todayTime.setMinutes(Number(startTime[1]));
             e.time.start = todayTime.getTime();
-
-            todayTime.setUTCHours(0, 0, 0, 0);
 
             var endTime = endTime.split(":");
             todayTime.setHours(Number(endTime[0]));
@@ -137,11 +138,16 @@ export default Schedule = () => {
                 duration: 200
             });
 
-            var classNowIndex = scheduleF.findIndex(b => Date.now() > b.time.start && Date.now() < b.time.end);
+            var classNowIndex = scheduleF.findIndex(b => Date.now() > b.time.start && Date.now() < b.time.end && b.class.filter(e => e !== null).length !== 0);
             var isNotClass = false;
             if (classNowIndex === -1) {
                 isNotClass = true;
-                classNowIndex = scheduleF.findIndex(b => Date.now() < b.time.end) - 1;
+                classNowIndex = scheduleF.findIndex(b => Date.now() < b.time.end && b.class.filter(e => e !== null).length !== 0) - 1;
+                if (classNowIndex === 0) classNowIndex = -1;
+            }
+
+            if (classNowIndex === -2) {
+                classNowIndex = Date.now() < scheduleF[0].time.start ? -1 : -2;
             }
 
             var weekDay = new Date().getDay() - 1;
@@ -175,7 +181,7 @@ export default Schedule = () => {
                     },
                     teacher: []
                 });
-            else for (var i = classNowIndex + 1; i < scheduleF.length; i++) {
+            if (classNowIndex !== -2) for (var i = classNowIndex + 1; i < scheduleF.length; i++) {
                 if (!scheduleF[i]) continue;
                 if (scheduleF[i].class[weekDay] === null) continue;
                 if (!scheduleF[i].class[weekDay]) continue;
