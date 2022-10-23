@@ -7,10 +7,10 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 import { getTheme } from "../util";
 
-export default SelectCard = ({ title, onPress, icon, style = {
+export default SelectCard = ({ children, onPress, icon, style = {
     color: getTheme().colors.onBackground
 } }) =>
-    <Card elevation={1} onPress={onPress} style={{
+    <Card elevation={1} onPress={onPress || undefined} style={{
         marginBottom: 15,
         borderRadius: 15,
         ...style
@@ -21,15 +21,17 @@ export default SelectCard = ({ title, onPress, icon, style = {
                 <Text variant="headlineLarge" style={{
                     color: style.color ?? "",
                     marginLeft: icon ? 10 : 0
-                }}>{title}</Text>
+                }}>{children}</Text>
             </View>
                 
-            <MaterialCommunityIcons
-                name="greater-than"
-                size={45}
-                style={{
-                    color: style.color ?? ""
-                }}
-            />
+            {
+                onPress && <MaterialCommunityIcons
+                    name="greater-than"
+                    size={45}
+                    style={{
+                        color: style.color ?? ""
+                    }}
+                />
+            }
         </Card.Content>
     </Card>;

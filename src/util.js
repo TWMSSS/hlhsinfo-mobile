@@ -49,7 +49,7 @@ export const showLoading = (description = "載入中...") => {
                         <ActivityIndicator animating={true} size={40} style={{
                             marginRight: 15
                         }} />
-                        <Text variant="displaySmall" style={{
+                        <Text variant="headlineLarge" style={{
                             alignContent: "center"
                         }}>{description}</Text>
                     </View>

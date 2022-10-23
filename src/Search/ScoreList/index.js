@@ -23,18 +23,18 @@ export default ScoreList = ({ navigation }) => {
             }
             var dp = [];
             for (var g of scores.data) {
-                dp.push(<SelectCard key={`${g.year}-${g.term}-${g.times}`} title={g.name} onPress={
+                dp.push(<SelectCard key={`${g.year}-${g.term}-${g.times}`} onPress={
                     () => navigation.navigate("Score", {
                         score: `${g.year}-${g.term}-${g.times}`
                     })
-                } />);
+                }>{g.name}</SelectCard>);
             }
-            dp.unshift(<SelectCard key={"all"} title="所有成績比較" style={{
+            dp.unshift(<SelectCard key={"all"} style={{
                 backgroundColor: getTheme().colors.onPrimary,
                 color: getTheme().colors.primary
             }} onPress={
                 () => openLink(`https://hlhsinfo.ml/compare#token=${window.accountData.token}`)
-            } />);
+            }>所有成績比較</SelectCard>);
             setDisplay(dp);
         }
         a();

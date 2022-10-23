@@ -151,10 +151,11 @@ export default Menu = ({ navigation }) => {
     useEffect(() => {
         var t = setInterval(() => {
             if (typeof global.accountData === "undefined" && logined) {
+                clearInterval(t);
                 setLoginStatus(false);
                 b();
             }
-        }, 500);
+        }, 1000);
 
         return () => {
             clearInterval(t);
@@ -203,20 +204,20 @@ export default Menu = ({ navigation }) => {
                 </Card>
                 <View style={{ margin: 15 }}>
                     <G title="實用功能">
-                        <SelectCard title="學習歷程平台" icon="arrow-top-right" onPress={() => openLink("http://210.62.247.21/ePortFolio/")} />
-                        <SelectCard title="自主學習計畫平台" icon="arrow-top-right" onPress={() => openLink("https://web.jhenggao.com/iLearning/Login.aspx")} />
-                        <SelectCard title="重補修選課系統" icon="arrow-top-right" onPress={() => openLink("http://shinher.hlhs.hlc.edu.tw/winrh/default.asp")} />
-                        <SelectCard title="線上查詢系統" icon="arrow-top-right" onPress={() => openLink("http://shinher.hlhs.hlc.edu.tw/online")} />
+                        <SelectCard icon="arrow-top-right" onPress={() => openLink("http://210.62.247.21/ePortFolio/")}>學習歷程平台</SelectCard>
+                        <SelectCard icon="arrow-top-right" onPress={() => openLink("https://web.jhenggao.com/iLearning/Login.aspx")}>自主學習計畫平台</SelectCard>
+                        <SelectCard icon="arrow-top-right" onPress={() => openLink("http://shinher.hlhs.hlc.edu.tw/winrh/default.asp")}>重補修選課系統</SelectCard>
+                        <SelectCard icon="arrow-top-right" onPress={() => openLink("http://shinher.hlhs.hlc.edu.tw/online")}>線上查詢系統</SelectCard>
                     </G>
                     <G title="開源軟體">
-                        <SelectCard title="開放原始碼授權" icon="certificate" onPress={() => navigation.navigate("License")} />
-                        <SelectCard title="了解運行方式" icon="transit-connection-variant" onPress={() => openLink("https://github.com/TWMSSS/hlhsinfo/blob/master/HowToAnalysis.md")} />
-                        <SelectCard title="Github 專案" icon="github" onPress={() => openLink("https://github.com/TWMSSS/hlhsinfo-mobile")} />
+                        <SelectCard icon="certificate" onPress={() => navigation.navigate("License")}>開放原始碼授權</SelectCard>
+                        <SelectCard icon="transit-connection-variant" onPress={() => openLink("https://github.com/TWMSSS/hlhsinfo/blob/master/HowToAnalysis.md")}>了解運行方式</SelectCard>
+                        <SelectCard icon="github" onPress={() => openLink("https://github.com/TWMSSS/hlhsinfo-mobile")}>Github 專案</SelectCard>
                     </G>
                     <G title="其他">
-                        <SelectCard title="支持我們!" icon="currency-usd" onPress={() => navigation.navigate("Support")} />
-                        <SelectCard title="伺服器狀態" icon="chart-box" onPress={() => openLink("https://hlhsinfo.ml/status.html")} />
-                        <SelectCard title="清除課表" icon="trash-can" onPress={() => {
+                        <SelectCard icon="currency-usd" onPress={() => navigation.navigate("Support")}>支持我們!</SelectCard>
+                        <SelectCard icon="chart-box" onPress={() => openLink("https://hlhsinfo.ml/status.html")}>伺服器狀態</SelectCard>
+                        <SelectCard icon="trash-can" onPress={() => {
                             setAlert(showConfirm("清除課程表", "您確定要清除課程表? 您清除後依舊可以重新取得課程表。", "清除", "取消", async (type) => {
                                 if (!type) {
                                     setAlert(<></>);
@@ -226,10 +227,9 @@ export default Menu = ({ navigation }) => {
                                 await removeLocal("@data/schedule");
                                 setAlert(showAlert("清除課程表", "已清除課程表，重新啟動應用程式即可。", "確定", () => setAlert(<></>)));
                             }))
-                        }} />
+                        }}>清除課表設定</SelectCard>
+                        <SelectCard icon="cog" onPress={() => navigation.navigate("Setting")}>設定</SelectCard>
                     </G>
-                        
-                    {/* <SelectCard title={<><MaterialCommunityIcons name="cog" size={30} /> 設定</>} /> */}
                 </View>
             </Page>
         </>
