@@ -1,4 +1,6 @@
 # hlhsinfo-mobile
+[![Release Build](https://github.com/TWMSSS/hlhsinfo-mobile/actions/workflows/release-build.yaml/badge.svg)](https://github.com/TWMSSS/hlhsinfo-mobile/actions/workflows/release-build.yaml)
+
 一個基於 [HLHSInfo](https://github.com/TWMSSS/hlhsinfo)之API 所做出來的行動裝置專用版本。
 
 ## 安裝
