@@ -2,12 +2,12 @@ name: "Release Build"
 
 on:
   push:
-    tags:
-      - "v*"
-    paths:
-      - "android/app/build.gradle"
     branches:
       - "master"
+    paths:
+      - "android/app/build.gradle"
+    tags:
+      - "v*"
 
 jobs:
   release:
