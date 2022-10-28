@@ -144,13 +144,13 @@ export default Menu = ({ navigation }) => {
         }, 200);
     }
 
-    useEffect(() => {
-        if (typeof global.accountData === "undefined") b();
-    }, []);
+    // useEffect(() => {
+    //     if (typeof global.accountData === "undefined") b();
+    // }, []);
 
     useEffect(() => {
         var t = setInterval(() => {
-            if (typeof global.accountData === "undefined" && logined) {
+            if (typeof global.accountData === "undefined" && !logined) {
                 clearInterval(t);
                 setLoginStatus(false);
                 b();
@@ -227,7 +227,7 @@ export default Menu = ({ navigation }) => {
                                 await removeLocal("@data/schedule");
                                 setAlert(showAlert("清除課程表", "已清除課程表，重新啟動應用程式即可。", "確定", () => setAlert(<></>)));
                             }))
-                        }}>清除課表設定</SelectCard>
+                        }}>清除課表資料</SelectCard>
                         <SelectCard icon="cog" onPress={() => navigation.navigate("Setting")}>設定</SelectCard>
                     </G>
                 </View>

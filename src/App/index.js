@@ -34,7 +34,9 @@ export default Home = () => {
         );
 
         BackgroundFetch.configure({
-            minimumFetchInterval: 15
+            minimumFetchInterval: 15,
+            stopOnTerminate: false,
+            startOnBoot: true,
         }, async (taskID) => {
             console.log("[HLHSInfo Background Service] Background fetch started!");
 
