@@ -3,11 +3,13 @@ name: "Release Build"
 on:
   push:
     branches:
-      - "master"
+      - master
     paths:
-      - "android/app/build.gradle"
+      - android/app/build.gradle
     tags:
       - "v*"
+  pull_request:
+    branches: [master]
 
 jobs:
   release:
