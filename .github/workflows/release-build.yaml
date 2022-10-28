@@ -6,6 +6,8 @@ on:
       - "v*"
     paths:
       - "android/app/build.gradle"
+    branches:
+      - "master"
 
 jobs:
   release:
