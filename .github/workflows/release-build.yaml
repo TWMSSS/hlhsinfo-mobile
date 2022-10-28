@@ -34,7 +34,9 @@ jobs:
         
       - name: Build Android application
         run: |
-          cd android && ./gradlew bundleRelease
+          cd android
+          chmod +x ./gradlew
+          ./gradlew bundleRelease
       
       - name: Publish release APK
         uses: "marvinpinto/action-automatic-releases@latest"
