@@ -44,10 +44,19 @@ jobs:
         run: yarn
         
       - name: Build Android application
-        run: |
-          cd android
-          chmod +x ./gradlew
-          ./gradlew bundleRelease
+        run: cd android && chmod +x ./gradlew && ./gradlew bundleRelease assembleRelease
+
+      - name: Upload AAB Asset
+        uses: actions/upload-artifact@v1
+        with:
+          name: app-release.aab
+          path: android/app/build/outputs/bundle/release/
+
+      - name: Upload APK Asset
+        uses: actions/upload-artifact@v1
+        with:
+          name: app-release.apk
+          path: android/app/build/outputs/apk/release/
 
       - name: Create GitHub release
         id: create_release
@@ -61,6 +70,17 @@ jobs:
             # Changelog
             Release type: ${{ env.version_name }}
           prerelease: false
+
+      - name: Upload APK Asset
+        if: steps.create_release.outputs.upload_url
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          upload_url: ${{steps.create_release.outputs.upload_url}}
+          asset_path: android/app/build/outputs/bundle/release/app-release.apk
+          asset_name: release.apk
+          asset_content_type: application/octet-stream
 
       - name: Upload Bundle Asset
         if: steps.create_release.outputs.upload_url
