@@ -47,14 +47,16 @@ export default Navigation = () => {
                 if (u === null || u === openedLink) return;
 
                 setOpenedLink(u);
-                u = u.split("//")[1];
+                u = (u.split("//")[1]).split("/");
+
+                if (u[1] !== "s") return;
 
                 navigation.navigate("Home", {
                     screen: "search",
                     params: {
                         screen: "Score",
                         params: {
-                            score: u.split("/")[2]
+                            score: u[2]
                         },
                         initial: false
                     }

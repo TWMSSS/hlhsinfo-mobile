@@ -18,7 +18,8 @@ import {
     Linking,
     Alert,
     View,
-    Image
+    Image,
+    Dimensions
 } from "react-native";
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 

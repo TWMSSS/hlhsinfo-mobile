@@ -30,13 +30,14 @@ export default Home = () => {
                 importance: Importance.DEFAULT,
                 vibrate: true
             },
-            (created) => console.log(`[HLHSInfo Push Notification] createChannel returned '${created}'`)
+            (created) => console.log(`[HLHSInfo Push Notification] Create notification channel "notification" returned "${created}"`)
         );
 
         BackgroundFetch.configure({
             minimumFetchInterval: 15,
             stopOnTerminate: false,
             startOnBoot: true,
+            enableHeadless: true,
         }, async (taskID) => {
             console.log("[HLHSInfo Background Service] Background fetch started!");
 
@@ -61,7 +62,7 @@ export default Home = () => {
             BackgroundFetch.finish(taskID);
         }, (taskID) => {
             console.log("[HLHSInfo Background Service] Background fetch failed to start!");
-            BackgroundFetch.finish(taskID)
+            BackgroundFetch.finish(taskID);
         });
     }, []);
 

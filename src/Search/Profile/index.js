@@ -25,7 +25,7 @@ export default Profile = ({ navigation }) => {
 
             scores = scores.data;
 
-            var profileImg = <View style={{
+            var profileImg = <View key="userImg" style={{
                 height: 200,
                 width: Dimensions.get("window").width - 18,
                 marginBottom: 15,
@@ -34,7 +34,7 @@ export default Profile = ({ navigation }) => {
                     borderRadius: 20,
                     backgroundColor: "#fff"
                 }}>
-                    <Image key="userImg" source={{ uri: scores.profileImg, height: 200 }} resizeMode="center" />
+                    <Image source={{ uri: scores.profileImg, height: 200 }} resizeMode="center" />
                 </Card>
             </View>
             var list = [];

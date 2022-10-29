@@ -27,7 +27,6 @@ export default ChoiseRender = ({ route }) => {
                     clearInterval(t);
                     setAlert(<></>);
                     setLogined(true);
-                    navigation.navigate("choise");
                 }
             }, 100);
         }

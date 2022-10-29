@@ -32,9 +32,7 @@ export default ScoreList = ({ navigation }) => {
             dp.unshift(<SelectCard key={"all"} style={{
                 backgroundColor: getTheme().colors.onPrimary,
                 color: getTheme().colors.primary
-            }} onPress={
-                () => openLink(`https://hlhsinfo.ml/compare#token=${window.accountData.token}`)
-            }>所有成績比較</SelectCard>);
+            }} onPress={() => navigation.navigate("ScoreAll")}>所有成績比較</SelectCard>);
             setDisplay(dp);
         }
         a();
