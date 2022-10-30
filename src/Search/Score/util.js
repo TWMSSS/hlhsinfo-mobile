@@ -164,7 +164,7 @@ export const ShOption = (prop) => {
                 alignItems: "center",
                 flexDirection: "row"
             }}>
-                { prop.icon && <MaterialCommunityIcons name={prop.icon} size={30} /> }
+                { prop.icon && <MaterialCommunityIcons name={prop.icon} color={getTheme().colors.onBackground} size={30} /> }
                 <Text variant="headlineSmall"  style={{
                     padding: 15,
                 }}>{prop.text}</Text>

@@ -107,10 +107,11 @@ export const shareScore = async (year, term, times, testID, token) => {
 }
 
 export const shareScoreImage = async (year, term, times, testID, token) => {
-    return await JSONHTTP(defaultAPIURL + APIs.share, token, {
+    return await HTTPRequest(defaultAPIURL + APIs.sharedImg, {
         method: "POST",
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            authorization: `Bearer ${token}`
         },
         body: JSON.stringify({
             year,
