@@ -61,6 +61,20 @@ export const MdB = (prop) => {
         }}>{prop.desc}</Text>
     </M>)
 }
+export const MdNP = (prop) => {
+    return (<M>
+        <View style={style.f}>
+            <View style={style.d}>
+                <Text variant="displayMedium" style={style.s}>{prop.display}</Text>
+                <Text style={style.ss}>分</Text>
+            </View>
+        </View>
+        <Text variant="headlineSmall" style={{
+            ...style.ss,
+            marginLeft: 0
+        }}>{prop.desc}</Text>
+    </M>)
+}
 export const MdP = (prop) => {
     return (<M>
         <View style={style.f}>

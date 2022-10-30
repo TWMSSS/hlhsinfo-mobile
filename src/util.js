@@ -287,3 +287,64 @@ export const netErrList = (err) => {
 
     return errList[err] ?? `未知錯誤，請向開發者提交錯誤。錯誤ID: ${err.nativeEvent.description}`;
 }
+
+export const getClassInfo = (data) => {
+    const classes = [
+        {
+            name: "國語文",
+            regex: new RegExp("國語"),
+            classTime: 4
+        },
+        {
+            name: "數學",
+            regex: new RegExp("數學"),
+            classTime: 4
+        },
+        {
+            name: "英語文",
+            regex: new RegExp("英語文"),
+            classTime: 4
+        },
+        {
+            name: "物理",
+            regex: new RegExp("物理"),
+            classTime: 2
+        },
+        {
+            name: "化學",
+            regex: new RegExp("化學"),
+            classTime: 2
+        },
+        {
+            name: "生物",
+            regex: new RegExp("生物"),
+            classTime: 2
+        },
+        {
+            name: "地球科學",
+            regex: new RegExp("地球科學"),
+            classTime: 2
+        },
+        {
+            name: "公民與社會",
+            regex: new RegExp("公民"),
+            classTime: 2
+        },
+        {
+            name: "地理",
+            regex: new RegExp("地理"),
+            classTime: 2
+        },
+        {
+            name: "歷史",
+            regex: new RegExp("歷史"),
+            classTime: 2
+        }
+    ];
+
+    return classes.find(e => data.match(e.regex)) ?? {
+        name: null,
+        regex: null,
+        classTime: 0
+    };
+}

@@ -5,7 +5,6 @@ import {
     SegmentedButtons
 } from "react-native-paper";
 import { Dimensions, View, ScrollView, LayoutAnimation } from "react-native";
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import BottomSheet, { BottomSheetScrollView, BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import Share from "react-native-share";
 
@@ -27,7 +26,8 @@ export default Score = ({ route, navigation }) => {
         scoreID: "",
         scoreAna: {},
         maxSubject: "",
-        minSubject: ""
+        minSubject: "",
+        totalScore: 0
     });
     const [alert, setAlert] = useState(<></>);
     const [showSubject, setShowSubject] = useState("overview");
@@ -57,7 +57,7 @@ export default Score = ({ route, navigation }) => {
         }
 
         var ranking = [...scoreD.data];
-        ranking.sort((a, b) =>Number(b.score) - Number(a.score));
+        ranking.sort((a, b) => Number(b.score) - Number(a.score));
 
         var d = {
             score: scoreD,
@@ -67,7 +67,8 @@ export default Score = ({ route, navigation }) => {
             scoreID,
             scoreAna: {},
             maxSubject: "",
-            minSubject: ""
+            minSubject: "",
+            totalScore: totScore
         };
 
         d.score.extra = d.score.extra.map(e => {
@@ -183,7 +184,7 @@ export default Score = ({ route, navigation }) => {
                                     }}>平均分數</Text>
                                 </>} />
                             <ScoreUtil.MdP
-                                data={[((Number(scoreData.score.extra.find(e => e.type === "總分").value) / (scoreData.score.data.length * 100)))]}
+                                data={[(Number(scoreData.score.extra.find(e => e.type === "平均").value) / 100)]}
                                 display={scoreData.score.extra.find(e => e.type === "總分").value}
                                 desc={<>
                                     是您的<Text style={{
