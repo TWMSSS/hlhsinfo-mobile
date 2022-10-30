@@ -146,13 +146,9 @@ export default Menu = ({ navigation }) => {
         }, 200);
     }
 
-    // useEffect(() => {
-    //     if (typeof global.accountData === "undefined") b();
-    // }, []);
-
     useEffect(() => {
         var t = setInterval(() => {
-            if (typeof global.accountData === "undefined" && !logined) {
+            if (typeof global.accountData === "undefined") {
                 clearInterval(t);
                 setLoginStatus(false);
                 b();
