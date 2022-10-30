@@ -58,6 +58,10 @@ export default Score = ({ route, navigation }) => {
 
         var ranking = [...scoreD.data];
         ranking.sort((a, b) => Number(b.score) - Number(a.score));
+        var totScore = 0;
+        ranking.forEach(e => {
+            totScore += getClassInfo(e.name).classTime * 100;
+        });
 
         var d = {
             score: scoreD,
