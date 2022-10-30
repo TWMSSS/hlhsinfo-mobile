@@ -3,7 +3,7 @@ import { ActivityIndicator } from "react-native-paper";
 import SelectCard from "../../SelectCard";
 
 import Page from "../../Page";
-import { getTheme, makeNeedLoginAlert, openLink } from "../../util";
+import { getTheme, makeNeedLoginAlert } from "../../util";
 import { getAllScoresList } from "../../api/apis";
 
 export default ScoreList = ({ navigation }) => {
@@ -23,9 +23,9 @@ export default ScoreList = ({ navigation }) => {
             }
             var dp = [];
             for (var g of scores.data) {
-                dp.push(<SelectCard key={`${g.year}-${g.term}-${g.times}`} onPress={
+                dp.push(<SelectCard key={`${g.year}-${g.term}-${g.times}-${g.testID}`} onPress={
                     () => navigation.navigate("Score", {
-                        score: `${g.year}-${g.term}-${g.times}`
+                        score: `${g.year}-${g.term}-${g.times}-${g.testID}`
                     })
                 }>{g.name}</SelectCard>);
             }

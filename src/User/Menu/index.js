@@ -79,6 +79,8 @@ export default Menu = ({ navigation }) => {
         if (logindata && !global.accountData ||
             logindata && !global.accountData.schoolNumber) {
             
+            setUsername("載入中...");
+            
             try {
                 var loginToken = await getLoginInfo();
             } catch (err) {

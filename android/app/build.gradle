@@ -139,8 +139,8 @@ android {
         applicationId "ml.hlhsinfo.twa"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 18
-        versionName "ver-0.6"
+        versionCode 19
+        versionName "ver-0.7"
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
 
         missingDimensionStrategy "store", "play"

@@ -46,7 +46,7 @@ export const getAllSchedule = async (token) => {
     return await JSONHTTP(defaultAPIURL + APIs.scheduleList, token);
 }
 
-export const getScore = async (year, term, times, token) => {
+export const getScore = async (year, term, times, testID, token) => {
     return await JSONHTTP(defaultAPIURL + APIs.scoreInfo, token, {
         method: "POST",
         headers: {
@@ -56,7 +56,8 @@ export const getScore = async (year, term, times, token) => {
             year,
             term,
             times,
-            examName: ""
+            testID,
+            examName: Math.random().toString()
         })
     });
 }
@@ -89,7 +90,7 @@ export const getSharedImage = async (sharedid) => {
     return await HTTPRequest(defaultAPIURL + APIs.sharedImg + `?shared=${sharedid}`);
 }
 
-export const shareScore = async (year, term, times, token) => {
+export const shareScore = async (year, term, times, testID, token) => {
     return await JSONHTTP(defaultAPIURL + APIs.share, token, {
         method: "POST",
         headers: {
@@ -99,12 +100,13 @@ export const shareScore = async (year, term, times, token) => {
             year,
             term,
             times,
+            testID,
             examName: Math.random().toString()
         })
     });
 }
 
-export const shareScoreImage = async (year, term, times, token) => {
+export const shareScoreImage = async (year, term, times, testID, token) => {
     return await JSONHTTP(defaultAPIURL + APIs.share, token, {
         method: "POST",
         headers: {
@@ -113,7 +115,8 @@ export const shareScoreImage = async (year, term, times, token) => {
         body: JSON.stringify({
             year,
             term,
-            times
+            times,
+            testID
         })
     });
 }

@@ -9,7 +9,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import BottomSheet, { BottomSheetScrollView, BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import Share from "react-native-share";
 
-import { getAllScores, getScore, getShared, getSharedImage, shareScore, shareScoreImage } from "../../api/apis";
+import { getScore, getShared, getSharedImage, shareScore, shareScoreImage } from "../../api/apis";
 import Page from "../../Page";
 import { showAlert, getTheme, makeNeedLoginAlert, showLoading, blobToBase64, QRCodeDisplay } from "../../util";
 import ScoreCard from "./ScoreCard";
@@ -70,6 +70,10 @@ export default Score = ({ route, navigation }) => {
             minSubject: ""
         };
 
+        d.score.extra = d.score.extra.map(e => {
+            return { type: e.type, value: e.value === "" ? undefined : e.value };
+        });
+
         d.maxSubject = d.score.data.reduce((a, b) => {
             return (a.score > b.score) ? a : b
         }).name;
@@ -118,24 +122,7 @@ export default Score = ({ route, navigation }) => {
 
     useEffect(() => {
         async function a() {
-            if (score === "all") {
-                if (!global.accountData) {
-                    navigation.goBack();
-                    return;
-                }
-                const scoreD = await getAllScores(global.accountData?.token);
-                if (!scoreD.data) {
-                    setAlert(makeNeedLoginAlert(() => {
-                        navigation.goBack();
-                        setAlert(<></>);
-                        window.accountData = undefined;
-                    }));
-                    return;
-                }
-                return sS(scoreD.data, "all", "all");
-            }
-
-            if (score.split("-").length !== 3) {
+            if (score.split("-").length !== 4) {
                 const scoreD = (await getShared(score)).data;
                 return sS(scoreD, "score", score);
             }
@@ -145,7 +132,7 @@ export default Score = ({ route, navigation }) => {
                 return;
             }
             const ids = score.split("-");
-            const scoreD = await getScore(ids[0], ids[1], ids[2], global.accountData?.token);
+            const scoreD = await getScore(ids[0], ids[1], ids[2], ids[3], global.accountData?.token);
             if (!scoreD.data) {
                 setAlert(makeNeedLoginAlert(() => {
                     navigation.goBack();
@@ -253,28 +240,8 @@ export default Score = ({ route, navigation }) => {
                         color: getTheme().colors.secondary
                     }}>所有成績中</Text>排</>} display={data.rank} />
 
-                    <ScoreUtil.MrP title={<>與<Text style={{
-                        color: getTheme().colors.secondary
-                    }}>班級的平均</Text>差距</>} display={<Text style={{
-                        color: data.userScoreAndAverage === 0 ? getTheme().colors.error : ""
-                    }}><MaterialCommunityIcons name={
-                        data.userScoreAndAverage === 2
-                            ? "chevron-up"
-                            : data.userScoreAndAverage !== 1
-                                ? "chevron-down"
-                                : "check-circle"
-                    } size={45} /> {(Math.abs(data.average - data.userScore)).toFixed(2)}</Text>} />
-                    <ScoreUtil.MrP title={<>與<Text style={{
-                        color: getTheme().colors.secondary
-                    }}>您的總平均</Text>差距</>} display={<Text style={{
-                        color: data.userScoreAndUserAverage === 0 ? getTheme().colors.error : ""
-                    }}><MaterialCommunityIcons name={
-                        data.userScoreAndUserAverage === 2
-                            ? "chevron-up"
-                            : data.userScoreAndUserAverage !== 1
-                                ? "chevron-down"
-                                : "check-circle"
-                    } size={45} /> {(Math.abs(data.userAverage - data.userScore)).toFixed(2)}</Text>} />
+                    <ScoreUtil.MrD type="班級的平均" scoreType={data.userScoreAndAverage} score={(Math.abs(data.average - data.userScore)).toFixed(2)} />
+                    <ScoreUtil.MrD type="您的總平均" scoreType={data.userScoreAndUserAverage} score={(Math.abs(data.userAverage - data.userScore)).toFixed(2)} />
                 </>}
             />
         </>;
@@ -296,7 +263,7 @@ export default Score = ({ route, navigation }) => {
                     return;
                 }
 
-                var scoreD = await shareScore(scoreData.scoreID[0], scoreData.scoreID[1], scoreData.scoreID[2], global.accountData?.token);
+                var scoreD = await shareScore(scoreData.scoreID[0], scoreData.scoreID[1], scoreData.scoreID[2], scoreData.scoreID[3], global.accountData?.token);
                 if (!scoreD.data) {
                     setAlert(makeNeedLoginAlert(() => {
                         navigation.goBack();
@@ -336,7 +303,7 @@ export default Score = ({ route, navigation }) => {
                     return;
                 }
 
-                var data = await (await shareScoreImage(scoreData.scoreID[0], scoreData.scoreID[1], scoreData.scoreID[2], global.accountData?.token)).blob();
+                var data = await (await shareScoreImage(scoreData.scoreID[0], scoreData.scoreID[1], scoreData.scoreID[2], scoreData.scoreID[3], global.accountData?.token)).blob();
                 try {
                     data = (await blobToBase64(data)).replace("application/octet-stream", "image/png");
                 } catch (err) {
@@ -354,8 +321,7 @@ export default Score = ({ route, navigation }) => {
                     return;
                 }
 
-                var ids = score.split("-");
-                var scoreD = await shareScore(ids[0], ids[1], ids[2], global.accountData?.token);
+                var scoreD = await shareScore(scoreData.scoreID[0], scoreData.scoreID[1], scoreData.scoreID[2], scoreData.scoreID[3], global.accountData?.token);
                 if (!scoreD.data) {
                     setAlert(makeNeedLoginAlert(() => {
                         navigation.goBack();

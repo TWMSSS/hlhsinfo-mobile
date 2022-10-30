@@ -139,6 +139,19 @@ export const MrP = (prop) => {
         <Text style={style.ss}>分</Text>
     </Md>);
 }
+export const MrD = (prop) => {
+    return (<MrP title={<>與<Text style={{
+        color: getTheme().colors.secondary
+    }}>{prop.type}</Text>差距</>} display={<Text style={{
+        color: prop.scoreType === 0 ? getTheme().colors.error : getTheme().colors.onBackground
+    }}><MaterialCommunityIcons name={
+        prop.scoreType === 2
+            ? "chevron-up"
+            : prop.scoreType !== 1
+                ? "chevron-down"
+                : "check-circle"
+    } size={45} /> {prop.score}</Text>} />)
+}
 export const ShOption = (prop) => {
     return (<>
         <Card onPress={prop.onPress} style={{
