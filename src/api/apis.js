@@ -125,3 +125,10 @@ export const shareScoreImage = async (year, term, times, testID, token) => {
 export const getNotify = async () => {
     return await JSONHTTP(defaultAPIURL + APIs.notify);
 }
+
+export const cleanCache = async (token) => {
+    return await HTTPRequest(defaultAPIURL + APIs.cleanCache, {
+        method: "GET",
+        headers: { authorization: `Bearer ${token}` }
+    });
+}

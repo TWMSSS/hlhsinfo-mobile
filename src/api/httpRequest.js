@@ -38,5 +38,8 @@ export const APIs = {
     sharedImg: "/getScoreImg",
 
     // Notification
-    notify: "/notify"
+    notify: "/notify",
+
+    // Clean Cache
+    cleanCache: "/clearCache"
 }
