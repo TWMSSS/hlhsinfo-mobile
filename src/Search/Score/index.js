@@ -197,7 +197,12 @@ export default Score = ({ route, navigation }) => {
 
                 <ScoreCard
                     subject="排名"
-                    score={scoreData.score.extra.map(e => <ScoreUtil.Mr key={e.type} title={e.type} display={setAlert.value ?? "不適用"} />)}
+                    score={<>
+                        <ScoreUtil.Mr title="班級排名" display={scoreData.score.extra.find(e => e.type === "排名")?.value ?? "不適用"} />
+                        <ScoreUtil.Mr title="年級排名" display={scoreData.score.extra.find(e => e.type === "年級排名")?.value ?? "不適用"} />
+                        <ScoreUtil.Mr title="科別排名" display={scoreData.score.extra.find(e => e.type === "科別排名")?.value ?? "不適用"} />
+                        <ScoreUtil.Mr title="類組排名" display={scoreData.score.extra.find(e => e.type === "類組排名")?.value ?? "不適用"} />
+                    </>}
                 />
             </>;
             return;
