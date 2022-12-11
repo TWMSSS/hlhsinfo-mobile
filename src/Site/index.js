@@ -5,8 +5,12 @@ import { WebView } from "react-native-webview";
 import Page from "../Page";
 import { showSnackBar, netErrList, openLink } from "../util";
 
-export default Site = () => {
+export default () => {
     const [alert, setAlert] = useState(<></>);
+    const [size, setSize] = useState({
+        width: Dimensions.get("screen").width,
+        height: Dimensions.get("screen").height
+    });
     const webviewRef = useRef(false);
 
     function sSSB(content) {
@@ -22,9 +26,15 @@ export default Site = () => {
     }
 
     useEffect(() => {
-        BackHandler.addEventListener("hardwareBackPress", handleBackButtonPress)
+        BackHandler.addEventListener("hardwareBackPress", handleBackButtonPress);
+        Dimensions.addEventListener("change", ({ window: { width, height } }) => {
+            setSize({
+                height,
+                width
+            });
+        });
         return () => {
-            BackHandler.removeEventListener("hardwareBackPress", handleBackButtonPress)
+            BackHandler.removeEventListener("hardwareBackPress", handleBackButtonPress);
         };
     }, []);
 
@@ -33,7 +43,7 @@ export default Site = () => {
             title="學校官網"
             style={{
                 margin: 0,
-                width: Dimensions.get("screen").width,
+                width: size.width,
                 marginTop: -15,
                 paddingBottom: -15
             }}
@@ -47,21 +57,18 @@ export default Site = () => {
                     ref={webviewRef}
                     source={{ uri: "https://www.hlhs.hlc.edu.tw" }}
                     style={{
-                        height: Dimensions.get("screen").width,
-                        width: Dimensions.get("screen").width,
+                        height: size.width,
+                        width: size.width,
                         margin: 0
                     }}
                     nestedScrollEnabled
                     onError={(err) => sSSB(netErrList(err.nativeEvent.description))}
+                    setSupportMultipleWindows={false}
                     onShouldStartLoadWithRequest={(event) => {
-                        if (event.navigationType === "click") {
-                            if (!event.url.match(/(www\.hlhs\.hlc\.edu\.tw\/*)/gm)) {
-                                openLink(event.url);
-                                return false;
-                            }
-                            return true;
+                        if (!event.url.startsWith("https://www.hlhs.hlc.edu.tw/")) {
+                            openLink(event.url);
+                            return false;
                         }
-
                         return true;
                     }}
                 />

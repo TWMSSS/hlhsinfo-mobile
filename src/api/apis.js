@@ -1,14 +1,15 @@
-import { HTTPRequest, JSONHTTP, defaultAPIURL, APIs } from "./httpRequest"
+import { HTTPRequest, JSONHTTP, defaultAPIURL, APIs } from "./httpRequest";
+import RNFetchBlob from "rn-fetch-blob";
 
 export const getLoginInfo = async () => {
     return await JSONHTTP(defaultAPIURL + APIs.loginInfo);
 }
 
 export const getLoginCaptcha = async (token) => {
-    return await HTTPRequest(defaultAPIURL + APIs.captcha, {
-        headers: {
-            authorization: `Bearer ${token}`
-        }
+    return await RNFetchBlob.config({
+        path: RNFetchBlob.fs.dirs.CacheDir + "/captcha.tmp"
+    }).fetch("GET", defaultAPIURL + APIs.captcha, {
+        authorization: `Bearer ${token}`
     });
 }
 
@@ -87,7 +88,7 @@ export const getRewAndPun = async (token) => {
 }
 
 export const getSharedImage = async (sharedid) => {
-    return await HTTPRequest(defaultAPIURL + APIs.sharedImg + `?shared=${sharedid}`);
+    return await RNFetchBlob.fetch("GET", defaultAPIURL + APIs.sharedImg + `?shared=${sharedid}`);
 }
 
 export const shareScore = async (year, term, times, testID, token) => {
@@ -107,19 +108,16 @@ export const shareScore = async (year, term, times, testID, token) => {
 }
 
 export const shareScoreImage = async (year, term, times, testID, token) => {
-    return await HTTPRequest(defaultAPIURL + APIs.sharedImg, {
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json',
-            authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-            year,
-            term,
-            times,
-            testID
-        })
-    });
+    return await RNFetchBlob.fetch("POST", defaultAPIURL + APIs.sharedImg, {
+        'Content-Type': 'application/json',
+        authorization: `Bearer ${token}`
+    },
+    JSON.stringify({
+        year,
+        term,
+        times,
+        testID
+    }));
 }
 
 export const getNotify = async () => {
@@ -130,5 +128,33 @@ export const cleanCache = async (token) => {
     return await HTTPRequest(defaultAPIURL + APIs.cleanCache, {
         method: "GET",
         headers: { authorization: `Bearer ${token}` }
+    });
+}
+
+export const autoGetCaptcha = async (token) => {
+    var data = await getLoginCaptcha(token).then(e => e.path());
+    var fm = new FormData();
+    fm.append("image", {
+        uri: "file://" + data,
+        name: "captcha.tmp",
+        type: "image/png"
+    });
+
+    return new Promise(async (resolve, reject) => {
+        var xhr = new XMLHttpRequest();
+        xhr.timeout = 5000;
+
+        const timeout = setTimeout(() => xhr.abort(), 5000);
+
+        xhr.open("POST", "https://captcha.hlhsinfo.ml/detect?key=test");
+        xhr.send(fm);
+
+        xhr.onload = () => {
+            clearTimeout(timeout);
+            resolve(xhr.response);
+        };
+        xhr.onerror = () => reject();
+        xhr.ontimeout = () => reject();
+        xhr.onabort = () => reject();
     });
 }

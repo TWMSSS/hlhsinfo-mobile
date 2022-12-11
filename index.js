@@ -25,12 +25,7 @@ PushNotification.createChannel({
     (created) => console.log(`[HLHSInfo Push Notification] Create notification channel "notification" returned "${created}"`)
 );
 
-BackgroundFetch.configure({
-    minimumFetchInterval: 15,
-    stopOnTerminate: false,
-    startOnBoot: true,
-    enableHeadless: true,
-}, async (taskID) => {
+async function backgroundEvent() {
     console.log("[HLHSInfo Background Service] Background fetch started!");
 
     const storagedNotify = JSON.parse(await readLocal("@notify"));
@@ -46,13 +41,19 @@ BackgroundFetch.configure({
             playSound: true,
             soundName: "default",
             messageId: latestRemoteNotify.id,
-            channelId: "notification"
+            channelId: "notification",
         });
     }
 
     console.log("[HLHSInfo Background Service] Background fetch ended!");
-    BackgroundFetch.finish(taskID);
-}, (taskID) => {
+}
+
+BackgroundFetch.configure({
+    minimumFetchInterval: 15,
+    stopOnTerminate: false,
+    startOnBoot: true,
+    enableHeadless: true,
+}, backgroundEvent, (taskID) => {
     console.log("[HLHSInfo Background Service] Background fetch failed to start!");
     BackgroundFetch.finish(taskID);
 });
@@ -66,3 +67,4 @@ export default function Main() {
 }
 
 AppRegistry.registerComponent(appName, () => Main);
+// AppRegistry.registerHeadlessTask("BackgroundFetch", backgroundEvent);

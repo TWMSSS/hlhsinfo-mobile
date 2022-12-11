@@ -10,7 +10,7 @@ import SelectCard from "../../SelectCard";
 import { getTheme, showAlert } from "../../util";
 import Page from "../../Page";
 
-export default ChoiseRender = ({ route }) => {
+export default ({ route }) => {
     const navigation = useNavigation();
     const [logined, setLogined] = useState(!!global.accountData);
 

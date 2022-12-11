@@ -10,11 +10,11 @@ import Share from "react-native-share";
 
 import { getScore, getShared, getSharedImage, shareScore, shareScoreImage } from "../../api/apis";
 import Page from "../../Page";
-import { showAlert, getTheme, makeNeedLoginAlert, showLoading, blobToBase64, QRCodeDisplay } from "../../util";
+import { showAlert, getTheme, makeNeedLoginAlert, showLoading, QRCodeDisplay } from "../../util";
 import ScoreCard from "./ScoreCard";
 import * as ScoreUtil from "./util";
 
-export default Score = ({ route, navigation }) => {
+export default ({ route, navigation }) => {
     const { score } = route.params;
     const [scoreData, setScoreData] = useState({
         score: {
@@ -291,9 +291,8 @@ export default Score = ({ route, navigation }) => {
                 }
                 
                 if (scoreData.isShared) {
-                    var data = await (await getSharedImage(score)).blob();
                     try {
-                        data = (await blobToBase64(data)).replace("application/octet-stream", "image/png");
+                        var data = "data:image/png;base64," + await getSharedImage(score).then(e => e.base64());
                     } catch (err) {
                         setAlert(showAlert("錯誤", "無法生成成績圖片!", "關閉", () => {
                             setAlert(<></>);
@@ -304,9 +303,8 @@ export default Score = ({ route, navigation }) => {
                     return;
                 }
 
-                var data = await (await shareScoreImage(scoreData.scoreID[0], scoreData.scoreID[1], scoreData.scoreID[2], scoreData.scoreID[3], global.accountData?.token)).blob();
                 try {
-                    data = (await blobToBase64(data)).replace("application/octet-stream", "image/png");
+                    var data = "data:image/png;base64," + await shareScoreImage(scoreData.scoreID[0], scoreData.scoreID[1], scoreData.scoreID[2], scoreData.scoreID[3], global.accountData?.token).then(e => e.base64());
                 } catch (err) {
                     setAlert(showAlert("錯誤", "無法生成成績圖片!", "關閉", () => {
                         setAlert(<></>);

@@ -77,5 +77,6 @@
         "xtree": "cpp",
         "xutility": "cpp",
         "iomanip": "cpp"
-    }
+    },
+    "java.compile.nullAnalysis.mode": "automatic"
 }

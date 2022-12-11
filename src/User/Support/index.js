@@ -3,7 +3,7 @@ import { Text } from "react-native-paper";
 import Page from "../../Page";
 import { getTheme, openLink } from "../../util";
 
-export default Support = ({ navigation }) => {
+export default ({ navigation }) => {
     return (
         <Page title="支持我們" isBackAble={true} backEvent={() => navigation.goBack()}>
             <Text variant="headlineMedium">即將來臨!</Text>

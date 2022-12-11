@@ -1,22 +1,36 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dimensions, View } from "react-native";
 import { WebView } from "react-native-webview";
 
 import Page from "../../../Page";
 import { showSnackBar, netErrList } from "../util";
+import { getTheme } from "../../../util";
 
-export default ScoreAll = ({ navigation }) => {
+export default ({ navigation }) => {
     const [alert, setAlert] = useState(<></>);
+    const [size, setSize] = useState({
+        width: Dimensions.get("screen").width,
+        height: Dimensions.get("screen").height
+    });
 
     function sSSB(content) {
         setAlert(showSnackBar(content, [], () => setAlert(<></>)));
     }
 
+    useEffect(() => {
+        Dimensions.addEventListener("change", ({ window: { width, height } }) => {
+            setSize({
+                height,
+                width
+            });
+        });
+    }, []);
+
     return (<Page
         title="所有成績"
         style={{
             margin: 0,
-            width: Dimensions.get("screen").width,
+            width: size.width,
             marginTop: -15,
             paddingBottom: -15
         }}
@@ -30,15 +44,21 @@ export default ScoreAll = ({ navigation }) => {
             <WebView
                 source={{ uri: `https://hlhsinfo.ml/compare#token=${global.accountData.token}` }}
                 style={{
-                    height: Dimensions.get("screen").width,
-                    width: Dimensions.get("screen").width,
+                    height: size.width,
+                    width: size.width,
                     margin: 0
                 }}
                 nestedScrollEnabled
                 originWhitelist={['*']}
                 javaScriptEnabledAndroid={true}
                 onError={(err) => sSSB(netErrList(err.nativeEvent.description))}
-                injectedJavaScript={'var g=(d)=>document.querySelector(d); var k=(b)=>g(b).style.display="none"; k("header");k("footer");k("#notify");k("#pathName");'}
+                injectedJavaScript = {
+                    `var g=(d)=>document.querySelector(d);` +
+                    `var k=(b)=>g(b).style.display="none";` +
+                    `k("header");k("footer");k("#notify");k("#pathName");` +
+                    `g("body").style.backgroundColor="${getTheme().colors.background}";` +
+                    `g("section > .md").style.width="95%";`
+                }
             />
         </View>
     </Page>);

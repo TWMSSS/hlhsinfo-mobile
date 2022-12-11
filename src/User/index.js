@@ -8,7 +8,7 @@ import Support from "./Support";
 
 const Stack = createStackNavigator();
 
-export default User = ({ navigation }) => {
+export default ({ navigation }) => {
     return (
         <Stack.Navigator initialRouteName="Menu" screenOptions={{
             headerShown: false

@@ -7,7 +7,7 @@ import ProfileCard from "./ProfileCard";
 import { getUserInfo } from "../../api/apis";
 import { makeNeedLoginAlert } from "../../util";
 
-export default Profile = ({ navigation }) => {
+export default ({ navigation }) => {
     const [display, setDisplay] = useState(<ActivityIndicator animating={true} />);
     const [alert, setAlert] = useState(<></>);
 

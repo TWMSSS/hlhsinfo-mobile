@@ -5,8 +5,7 @@ import {
     Paragraph,
     Button,
     ActivityIndicator,
-    SegmentedButtons,
-    Divider
+    SegmentedButtons
 } from "react-native-paper";
 import { useNavigation } from '@react-navigation/native';
 
@@ -19,7 +18,7 @@ import {
 import ClassCard from "./ClassCard";
 import Page from "../Page";
 
-export default Schedule = () => {
+export default () => {
     const [type, setType] = useState("def");
     const [display, setDisplay] = useState(<ActivityIndicator animating={true} />);
     const [IntervalList, setIntervalList] = useState([]);
@@ -221,12 +220,10 @@ export default Schedule = () => {
             }
 
             setDisplay(<>
-                <View style={{ borderBottomWidth: 1 }}>
+                <View style={{ marginBottom: 10 }}>
                     <Text variant="titleLarge" style={{ margin: 15 }}>當前課程</Text>
                     {dpList.shift()}
                 </View>
-
-                <Divider />
 
                 <View>
                     <Text variant="titleLarge" style={{ margin: 15 }}>剩餘課程</Text>

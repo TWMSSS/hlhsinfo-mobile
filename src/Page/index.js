@@ -1,12 +1,10 @@
 import React from "react";
 import {
-    Text,
     Appbar,
-    Banner,
 } from "react-native-paper";
 import { View, ScrollView, SafeAreaView } from "react-native";
 
-export default Page = (prop = {
+export default (prop = {
     title: "",
     subTitle: "",
     isBackAble: false,
@@ -19,12 +17,14 @@ export default Page = (prop = {
     style: {},
     children: <></>,
     scrollViewProps: {},
+    onScroll: (() => { })
 }) => {
     prop = {
         extraButton: [],
         searchEvent: () => { },
         backEvent: () => { },
         scrollViewProps: { },
+        onScroll: () => { },
         ...prop
     }
     return (
@@ -41,7 +41,7 @@ export default Page = (prop = {
                 marginBottom: 110,
                 top: 0
             }}>
-                <ScrollView {...prop.scrollViewProps}>
+                <ScrollView {...prop.scrollViewProps} onScroll={prop.onScroll}>
                     {/* {
                         !prop.isNotShowBanner
                             ? <Banner

@@ -7,7 +7,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 import { getTheme } from "../util";
 
-export default SelectCard = ({ children, onPress, icon, style = {
+export default ({ children, onPress, icon, style = {
     color: getTheme().colors.onBackground
 } }) =>
     <Card elevation={1} onPress={onPress || undefined} style={{

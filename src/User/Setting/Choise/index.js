@@ -4,9 +4,10 @@ import Page from "../../../Page";
 import SelectCard from "../../../SelectCard";
 
 import { cleanCache } from "../../../api/apis";
-import { showLoading, showSnackBar } from "../../../util";
+import { showLoading, showSnackBar, saveLocal, showInput } from "../../../util";
+import { defaultAPIURL } from "../../../api/httpRequest";
 
-export default Choise = ({ navigation }) => {
+export default ({ navigation }) => {
     const [alert, setAlert] = useState(<></>);
 
     return (
@@ -20,7 +21,30 @@ export default Choise = ({ navigation }) => {
                 await cleanCache(global.accountData?.token);
                 setAlert(showSnackBar("已清除伺服器快取!", [], () => setAlert(<></>)))
             }}>清除伺服器快取</SelectCard>
-            <SelectCard icon="api" onPress={() => {}}>修改 API 位置 (Coming Soon!)</SelectCard>
+            <SelectCard icon="api" onPress={() => {
+                var t = global.config.API_URL || defaultAPIURL;
+                var ch = (val) => t = val;
+                setAlert(
+                    showInput(
+                        "修改API位置",
+                        <></>,
+                        {
+                            title: "API連結",
+                            defaultValue: t,
+                            onChangeText: ch
+                        },
+                        "確認",
+                        async (type) => {
+                            if (!type) setAlert(<></>);
+
+                            await saveLocal("@data/config", JSON.stringify({ ...global.config, API_URL: t }));
+                            global.config.API_URL = t;
+
+                            setAlert(showSnackBar(`已修改API位置至 "${t}"，重新啟動以套用。`, [], () => setAlert(<></>)));
+                        }
+                    )
+                )
+            }}>修改 API 位置</SelectCard>
             <SelectCard icon="earth" onPress={() => {}}>修改登入位置 (Coming Soon!)</SelectCard>
         </Page>
     );

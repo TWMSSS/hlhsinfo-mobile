@@ -3,7 +3,7 @@ import { Card, Text } from "react-native-paper";
 import { View } from "react-native";
 import { getTheme } from "../../../util";
 
-export default ScoreCard = (prop = {
+export default (prop = {
     subject: "",
     extra: "",
     score: ""

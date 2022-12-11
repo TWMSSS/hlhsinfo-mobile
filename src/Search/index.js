@@ -10,7 +10,7 @@ import Profile from "./Profile";
 import RewAndPun from "./RewAndPun";
 import ScoreAll from "./Score/ScoreAll";
 
-export default Search = ({ route, navigation }) => {
+export default ({ route, navigation }) => {
     return (
         <Stack.Navigator initialRouteName="Choise" screenOptions={{
             headerShown: false

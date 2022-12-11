@@ -14,7 +14,7 @@ export const JSONHTTP = async (url, token, options = {
     }).then(e => e.json());
 }
 
-export const defaultAPIURL = "https://hlhsinfo.ml/api";
+export const defaultAPIURL = global.config.API_URL || "https://hlhsinfo.ml/api";
 export const APIs = {
     // Login APIs
     login: "/login",

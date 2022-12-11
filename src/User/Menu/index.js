@@ -18,10 +18,12 @@ import {
     showConfirm,
     openLink,
     removeLocal,
-    showSnackBar
+    showSnackBar,
+    saveLocal
 } from "../../util";
 import SelectCard from "../../SelectCard";
 import {
+    autoGetCaptcha,
     getLoginCaptcha,
     getLoginInfo,
     getUserInfo,
@@ -29,7 +31,7 @@ import {
     login
 } from "../../api/apis";
 
-export default Menu = ({ navigation }) => {
+export default ({ navigation }) => {
     const [username, setUsername] = useState(global.accountData?.userName ?? global.accountData?.schoolNumber ?? "載入中...");
     const [alert, setAlert] = useState(<></>);
     const [userImg, setUserImg] = useState(global.accountData?.userImg
@@ -82,6 +84,7 @@ export default Menu = ({ navigation }) => {
             setUsername("載入中...");
             
             try {
+                var autoCaptcha = Boolean(global.config.autoCaptcha);
                 var loginToken = await getLoginInfo();
             } catch (err) {
                 if (err.message === "Network request failed") {
@@ -99,7 +102,6 @@ export default Menu = ({ navigation }) => {
             }
 
             loginToken = loginToken.authToken;
-            var cap = await blobToBase64(await (await getLoginCaptcha(loginToken)).blob());
             var captcha = "";
             async function close() {
                 setAlert(<></>);
@@ -120,15 +122,50 @@ export default Menu = ({ navigation }) => {
                     setLoginStatus(false);
                 }));
             }
+
+            function showOptionChoise() {
+                return new Promise((res) => {
+                    setAlert(
+                        showConfirm(
+                            "免驗證碼登入",
+                            <><Paragraph>現在我們開放您使用免驗證碼登入功能，我們使用圖像辨識技術來免除掉麻煩的登入步驟。現階段圖像辨識模型約有 99% 的準確率。</Paragraph></>,
+                            "試用",
+                            "自行輸入驗證碼",
+                            res
+                        )
+                    )
+                })
+            }
+
+            async function mCC() {
+                var cap = "data:image/png;base64," + await getLoginCaptcha(loginToken).then(e => e.base64());
+
+                setAlert(showInput("輸入驗證碼", <><Paragraph>您先前已經登入成功過了，現在只需要輸入驗證碼即可登入!</Paragraph><Image source={{ uri: cap, width: "100%", height: 150 }} resizeMode="contain" style={{
+                    borderRadius: 15,
+                    width: "100%"
+                }} /></>, {
+                    title: "驗證碼",
+                    onChangeText: setCap,
+                    type: "decimal-pad"
+                }, "確定", close));
+            }
+
+            if (!autoCaptcha) autoCaptcha = await showOptionChoise();
+            await saveLocal("@data/config", JSON.stringify({ ...global.config, autoCaptcha }));
+
             const setCap = (text) => captcha = text;
-            setAlert(showInput("輸入驗證碼", <><Paragraph>您先前已經登入成功過了，現在只需要輸入驗證碼即可登入!</Paragraph><Image source={{ uri: cap, width: "100%", height: 150 }} resizeMode="contain" style={{
-                borderRadius: 15,
-                width: "100%"
-            }} /></>, {
-                title: "驗證碼",
-                onChangeText: setCap,
-                type: "decimal-pad"
-            }, "確定", close));
+
+            if (autoCaptcha) {
+                setAlert(<></>);
+                try {
+                    captcha = await autoGetCaptcha(loginToken);
+                    close();
+                } catch (err) {
+                    mCC();
+                }
+            } else {
+                mCC();
+            }
         } else if (!logindata && !global.accountData) {
             setLoginStatus(false);
         }

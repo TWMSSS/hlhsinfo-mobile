@@ -1,8 +1,8 @@
 import React from "react";
-import { Card, Text, Avatar, Paragraph } from "react-native-paper";
+import { Card, Text, Avatar } from "react-native-paper";
 import { View } from "react-native";
 
-export default ClassCard = (prop = {
+export default (prop = {
     class: "",
     extra: "",
     classTime: ""

@@ -4,10 +4,10 @@ import { Paragraph, Text, TextInput, Button } from "react-native-paper";
 import Keychain from 'react-native-keychain';
 
 import Page from "../../Page";
-import { getTheme, openLink, showInput, blobToBase64, showAlert, showLoading } from "../../util";
+import { getTheme, openLink, showInput, showAlert, showLoading } from "../../util";
 import { login, getLoginCaptcha, getLoginInfo, getUserInfoShort } from "../../api/apis";
 
-export default Login = ({ navigation }) => {
+export default ({ navigation }) => {
     const [password, setPassword] = useState("");
     const [username, setUsername] = useState("");
     const [buttonDisable, setButtonDisable] = useState(false);
@@ -62,7 +62,8 @@ export default Login = ({ navigation }) => {
                 setButtonDisable(false);
             }));
         }
-        const cap = await blobToBase64(await (await getLoginCaptcha(loginInfo.authToken)).blob());
+        const cap = "data:image/png;base64," + await getLoginCaptcha(loginInfo.authToken).then(e => e.base64());
+        console.log(cap)
         setAlert(showInput("輸入驗證碼", <><Paragraph>您必須輸入驗證碼以登入成績查詢網站</Paragraph><Image source={{ uri: cap, width: "100%", height: 150 }} resizeMode="contain" style={{
             borderRadius: 15,
             width: "100%"

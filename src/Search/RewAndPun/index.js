@@ -4,9 +4,9 @@ import { View, ScrollView } from "react-native";
 import { getRewAndPun } from "../../api/apis";
 
 import Page from "../../Page";
-import { makeNeedLoginAlert, getTheme, showLoading } from "../../util";
+import { makeNeedLoginAlert, getTheme, showLoading, calcPage, calcFromTo } from "../../util";
 
-export default RewAndPun = ({ navigation }) => {
+export default ({ navigation }) => {
     const [record, setRecord] = useState();
     const [alert, setAlert] = useState(showLoading());
     const [page, setPage] = useState(0);
@@ -29,7 +29,7 @@ export default RewAndPun = ({ navigation }) => {
                     ...e,
                     id: Math.floor(Math.random() * 10000000)
                 }
-            });
+            }).reverse();
 
             setRecord(t.data);
             setAlert(<></>);
@@ -64,7 +64,7 @@ export default RewAndPun = ({ navigation }) => {
             </View>
         }
 
-        const data = record.detail.find(e => e.id === id);
+        const data = record.detail[id];
 
         setAlert(
             <Portal>
@@ -129,14 +129,17 @@ export default RewAndPun = ({ navigation }) => {
             }
         }
 
-        for (var i = 0; i < record.detail.length; i++) {
+        for (let i = 0; i < record.detail.length; i++) {
             var g = record.detail[i];
-            if (i + 1 > page * PageView && i + 1 < (page + 1) * PageView + 1) detail.push(<DataTable.Row key={g.id}>
-                <DataTable.Cell>{g.start}</DataTable.Cell>
-                <DataTable.Cell>{g.signed}</DataTable.Cell>
-                <DataTable.Cell numeric>{g.type}</DataTable.Cell>
-                <DataTable.Cell numeric onPress={() => createDetail(g.id)}>詳細資料</DataTable.Cell>
-            </DataTable.Row>);
+            if (i + 1 > page * PageView && i + 1 < (page + 1) * PageView + 1) {
+                var d = <DataTable.Row key={g.id}>
+                    <DataTable.Cell>{g.start}</DataTable.Cell>
+                    <DataTable.Cell>{g.signed}</DataTable.Cell>
+                    <DataTable.Cell numeric>{g.type}</DataTable.Cell>
+                    <DataTable.Cell key={Math.round(Math.random() * 65814)} numeric onPress={() => createDetail(i)}>詳細資料</DataTable.Cell>
+                </DataTable.Row>;
+                detail.push(d);
+            }
         }
     }
 
@@ -161,9 +164,9 @@ export default RewAndPun = ({ navigation }) => {
 
                 <DataTable.Pagination
                     page={page}
-                    numberOfPages={Math.round(record?.detail.length / PageView) ?? 0}
+                    numberOfPages={calcPage(record?.detail.length, PageView)}
                     onPageChange={(page) => setPage(page)}
-                    label={`第 ${page + 1} 頁 之 ${page * PageView + 1}-${((page + 1) * PageView) < (record?.detail.length ?? 0) ? (page + 1) * PageView : page * PageView + (record?.detail.length ?? 0) % 10}, 共 ${Math.round((record?.detail.length ?? 0) / PageView)} 頁 共 ${record?.detail.length ?? 0} 筆資料`}
+                    label={`第 ${page + 1} 頁 之 ${calcFromTo(page, record?.detail.length, PageView)}, 共 ${calcPage(record?.detail.length, PageView)} 頁 共 ${record?.detail.length ?? 0} 筆資料`}
                 />
             </DataTable>
         </Page>

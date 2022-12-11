@@ -18,8 +18,7 @@ import {
     Linking,
     Alert,
     View,
-    Image,
-    Dimensions
+    Image
 } from "react-native";
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 
@@ -96,7 +95,8 @@ export const showConfirm = (title, description, allowText = "確認", denyText =
 export const showInput = (title, description, input = {
     title: "",
     onChangeText: () => { },
-    type: "default"
+    type: "default",
+    defaultValue: ""
 }, closeText = "確認", onPress = () => { }) => {
     return (
         <Portal>
@@ -111,6 +111,7 @@ export const showInput = (title, description, input = {
                         onChangeText={(text) => input.onChangeText(text)}
                         mode="outlined"
                         keyboardType={input.type}
+                        defaultValue={input.defaultValue}
                     />
                 </Dialog.Content>
                 <Dialog.Actions>
@@ -166,6 +167,7 @@ export const openLink = async (url) => {
                 enableUrlBarHiding: true,
                 enableDefaultShare: true,
                 forceCloseOnRedirection: true,
+                showInRecents: true
             });
         } else Linking.openURL(url);
     } catch (error) {
@@ -285,7 +287,7 @@ export const netErrList = (err) => {
         "net::ERR_CONNECTION_REFUSED": "連線已被重置，請再試一次。"
     };
 
-    return errList[err] ?? `未知錯誤，請向開發者提交錯誤。錯誤ID: ${err.nativeEvent.description}`;
+    return errList[err] ?? `未知錯誤，請向開發者提交錯誤。錯誤ID: ${err}`;
 }
 
 export const getClassInfo = (data) => {
@@ -343,8 +345,16 @@ export const getClassInfo = (data) => {
     ];
 
     return classes.find(e => data.match(e.regex)) ?? {
-        name: null,
-        regex: null,
+        name: data,
+        regex: new RegExp(data),
         classTime: 0
     };
+}
+
+export const calcPage = (length, limit) => {
+    return (length / limit) % 1 > 0 ? Number((length / limit).toFixed(0)) + 1 : Number((length / limit).toFixed(0)) ?? 0;
+}
+
+export const calcFromTo = (page, length, limit) => {
+    return `${page * limit + 1}-${((page + 1) * limit) < (length ?? 0) ? (page + 1) * limit : page * limit + (length ?? 0) % 10}`;
 }

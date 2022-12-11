@@ -15,7 +15,7 @@ import User from '../User';
 import QRCodeScanner from '../QRCodeScanner';
 import Site from '../Site';
 
-export default Navigation = () => {
+export default () => {
     const HomeComponent = ({ navigation }) => {
         const [openedLink, setOpenedLink] = useState("");
 

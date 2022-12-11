@@ -6,7 +6,7 @@ import Page from "../../Page";
 import { getTheme, makeNeedLoginAlert } from "../../util";
 import { getAllScoresList } from "../../api/apis";
 
-export default ScoreList = ({ navigation }) => {
+export default ({ navigation }) => {
     const [display, setDisplay] = useState(<ActivityIndicator animating={true} />);
     const [alert, setAlert] = useState(<></>);
 
@@ -22,6 +22,9 @@ export default ScoreList = ({ navigation }) => {
                 return;
             }
             var dp = [];
+
+            global.accountData.scoreList = scores.data;
+
             for (var g of scores.data) {
                 dp.push(<SelectCard key={`${g.year}-${g.term}-${g.times}-${g.testID}`} onPress={
                     () => navigation.navigate("Score", {
@@ -45,8 +48,6 @@ export default ScoreList = ({ navigation }) => {
                 title="查詢成績"
                 isBackAble={true}
                 backEvent={() => navigation.goBack()}
-                isSearchAble={true}
-                searchEvent={console.log}
             >
                 {display}
             </Page>

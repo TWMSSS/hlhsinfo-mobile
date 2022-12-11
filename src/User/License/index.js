@@ -6,7 +6,7 @@ import Page from "../../Page";
 import LicenseFile from "./LICENSES.json";
 import { getTheme } from "../../util";
 
-export default License = ({ navigation }) => {
+export default ({ navigation }) => {
     return (
         <Page
             title="開放原始碼授權"

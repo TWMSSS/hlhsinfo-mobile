@@ -10,7 +10,7 @@ import { URL } from "react-native-url-polyfill";
 import Page from '../Page';
 import { isHLHSInfoURL, showAlert } from '../util';
 
-export default QRCodeScanner = ({ navigation }) => {
+export default ({ navigation }) => {
     const [hasPermission, setHasPermission] = useState(false);
     const [frameProcessor, barcodes] = useScanBarcodes([
         BarcodeFormat.QR_CODE

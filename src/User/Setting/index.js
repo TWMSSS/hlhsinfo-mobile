@@ -4,7 +4,7 @@ import Version from "./Version";
 
 const Stack = createStackNavigator();
 
-export default Setting = () => {
+export default () => {
     return (
         <Stack.Navigator initialRouteName="Choise" screenOptions={{
             headerShown: false
