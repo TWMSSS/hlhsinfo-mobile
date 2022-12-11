@@ -19,7 +19,7 @@ jobs:
         
       - name : Retrieve Version
         run: |
-          echo "::set-output name=VERSION_NAME::$(grep -o "versionName\s\+.*" android/app/build.gradle | awk '{ print $2 }' | tr -d \"\')"
+          echo "VERSION_NAME=$(grep -o "versionName\s\+.*" android/app/build.gradle | awk '{ print $2 }' | tr -d \"\')" > $GITHUB_OUTPUT
         id: android_version
 
       - name: Get version

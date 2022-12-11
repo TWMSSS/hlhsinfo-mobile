@@ -63,7 +63,6 @@ export default ({ navigation }) => {
             }));
         }
         const cap = "data:image/png;base64," + await getLoginCaptcha(loginInfo.authToken).then(e => e.base64());
-        console.log(cap)
         setAlert(showInput("輸入驗證碼", <><Paragraph>您必須輸入驗證碼以登入成績查詢網站</Paragraph><Image source={{ uri: cap, width: "100%", height: 150 }} resizeMode="contain" style={{
             borderRadius: 15,
             width: "100%"

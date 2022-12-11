@@ -6,7 +6,7 @@ import { Text, DataTable, Portal, Modal } from "react-native-paper";
 
 import Page from "../../Page";
 import { getTheme, chartConfig, makeNeedLoginAlert, className, showLoading, calcPage, calcFromTo } from "../../util";
-import LackCard from "./LackCard";
+import InfoCard from "../InfoCard";
 
 export default ({ navigation }) => {
     const [lack, setLack] = useState();
@@ -125,7 +125,7 @@ export default ({ navigation }) => {
 
         for (let i = 0; i < lack.total.termUp.length; i++) {
             if (lack.total.termUp[i].value > 0 || lack.total.termDown[i].value > 0) {
-                totData.push(<LackCard
+                totData.push(<InfoCard
                     key={Math.floor(Math.random() * 10000)}
                     title={lack.total.termUp[i].name}
                     data={<>

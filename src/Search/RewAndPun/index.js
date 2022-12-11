@@ -4,6 +4,7 @@ import { View, ScrollView } from "react-native";
 import { getRewAndPun } from "../../api/apis";
 
 import Page from "../../Page";
+import InfoCard from "../InfoCard";
 import { makeNeedLoginAlert, getTheme, showLoading, calcPage, calcFromTo } from "../../util";
 
 export default ({ navigation }) => {
@@ -114,7 +115,7 @@ export default ({ navigation }) => {
 
         for (var i = 0; i < record.status.length; i++) {
             if (record.status[i].times > 0 || record.status[i].times > 0) {
-                status.push(<LackCard
+                status.push(<InfoCard
                     key={Math.floor(Math.random() * 10000)}
                     title={record.status[i].type}
                     data={

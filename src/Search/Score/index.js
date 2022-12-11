@@ -11,7 +11,7 @@ import Share from "react-native-share";
 import { getScore, getShared, getSharedImage, shareScore, shareScoreImage } from "../../api/apis";
 import Page from "../../Page";
 import { showAlert, getTheme, makeNeedLoginAlert, showLoading, QRCodeDisplay } from "../../util";
-import ScoreCard from "./ScoreCard";
+import InfoCard from "../InfoCard";
 import * as ScoreUtil from "./util";
 
 export default ({ route, navigation }) => {
@@ -176,9 +176,9 @@ export default ({ route, navigation }) => {
             var maxSubj = scoreData.thisScore.score.data.find(e => e.name === scoreData.thisScore.maxSubject);
             var minSubj = scoreData.thisScore.score.data.find(e => e.name === scoreData.thisScore.minSubject);
             display = <>
-                <ScoreCard
-                    subject="總覽"
-                    score={<>
+                <InfoCard
+                    title="總覽"
+                    data={<>
                         <View>
                             <ScoreUtil.MdB name={maxSubj.name} desc={<>
                                 是您成績中<Text style={{
@@ -213,9 +213,9 @@ export default ({ route, navigation }) => {
                     </>}
                 />
 
-                <ScoreCard
-                    subject="排名"
-                    score={<>
+                <InfoCard
+                    title="排名"
+                    data={<>
                         <ScoreUtil.Mr title="班級排名" display={scoreData.thisScore.score.extra.find(e => e.type === "排名")?.value ?? "不適用"} />
                         <ScoreUtil.Mr title="年級排名" display={scoreData.thisScore.score.extra.find(e => e.type === "年級排名")?.value ?? "不適用"} />
                         <ScoreUtil.Mr title="科別排名" display={scoreData.thisScore.score.extra.find(e => e.type === "科別排名")?.value ?? "不適用"} />
@@ -229,7 +229,7 @@ export default ({ route, navigation }) => {
         var subj = scoreData.thisScore.score.data.find(e => e.name === showSubject);
         var data = scoreData.thisScore.scoreAna[showSubject];
         display = <>
-            <ScoreCard key={subj.name + subj.score} subject={subj.name} score={<>
+            <InfoCard key={subj.name + subj.score} title={subj.name} data={<>
                 <View>
                     <ScoreUtil.MdPT
                         data={[(data.userScore / 100)]}
@@ -252,9 +252,9 @@ export default ({ route, navigation }) => {
                 </View>
             </>} />
 
-            <ScoreCard
-                subject="詳細資訊"
-                score={<>
+            <InfoCard
+                title="詳細資訊"
+                data={<>
                     <ScoreUtil.Mr title={<>在您<Text style={{
                         color: getTheme().colors.secondary
                     }}>所有成績中</Text>排</>} display={data.rank} />
