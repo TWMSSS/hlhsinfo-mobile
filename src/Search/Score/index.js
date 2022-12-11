@@ -17,17 +17,20 @@ import * as ScoreUtil from "./util";
 export default ({ route, navigation }) => {
     const { score } = route.params;
     const [scoreData, setScoreData] = useState({
-        score: {
-            data: []
+        thisScore: {
+            score: {
+                data: []
+            },
+            type: "",
+            ranking: [],
+            isShared: !!0,
+            scoreID: "",
+            scoreAna: {},
+            maxSubject: "",
+            minSubject: "",
+            totalScore: 0
         },
-        type: "",
-        ranking: [],
-        isShared: !!0,
-        scoreID: "",
-        scoreAna: {},
-        maxSubject: "",
-        minSubject: "",
-        totalScore: 0
+        bfScore: {}
     });
     const [alert, setAlert] = useState(<></>);
     const [showSubject, setShowSubject] = useState("overview");
@@ -51,62 +54,76 @@ export default ({ route, navigation }) => {
         bottomSheetRef.current.expand();
     }
 
-    function sS(scoreD, tp, scoreID) {
+    async function sS(scoreD, tp, scoreID) {
         if (!scoreD || scoreD.data.length === 0) {
             return notFound();
         }
 
-        var ranking = [...scoreD.data];
-        ranking.sort((a, b) => Number(b.score) - Number(a.score));
+        const scoreBefore = global.accountData.scoreList.filter(e => e.type === 1);
+        const thisS = scoreBefore.findIndex(e => e.year === scoreID[0] && e.term === scoreID[1] && e.times === scoreID[2]);
 
-        var d = {
-            score: scoreD,
-            type: tp,
-            ranking,
-            isShared: !!scoreD.userInfo,
-            scoreID,
-            scoreAna: {},
-            maxSubject: "",
-            minSubject: "",
-            totalScore: 0
-        };
+        function dtl(scoreData) {
+            var ranking = [...scoreData.data];
+            ranking.sort((a, b) => Number(b.score) - Number(a.score));
 
-        d.score.extra = d.score.extra.map(e => {
-            return { type: e.type, value: e.value === "" ? undefined : e.value };
-        });
+            var d = {
+                score: scoreData,
+                type: tp,
+                ranking,
+                isShared: !!scoreData.userInfo,
+                scoreID,
+                scoreAna: {},
+                maxSubject: "",
+                minSubject: "",
+                totalScore: 0
+            };
 
-        d.maxSubject = d.score.data.reduce((a, b) => {
-            return (a.score > b.score) ? a : b
-        }).name;
-        d.minSubject = d.score.data.reduce((a, b) => {
-            return (a.score < b.score) ? a : b
-        }).name;
+            d.score.extra = d.score.extra.map(e => {
+                return { type: e.type, value: e.value === "" ? undefined : e.value };
+            });
 
-        for (var h of d.score.data) {
-            var data = {
-                userAverage: Number(d.score.extra.find(e => e.type === "平均").value),
-                average: Number(h.gpa),
-                userScore: Number(h.score),
-                rank: d.ranking.findIndex(e => e.name === h.name) + 1,
-                isUnpass: {
-                    score: d.score.unpass.findIndex(e => e.name === h.name && e.type === "score") !== -1,
-                    gpa: d.score.unpass.findIndex(e => e.name === h.name && e.type === "gpa") !== -1 || Number(h.gpa) < 60
-                },
-                userScoreAndAverage: 1,
-                userScoreAndUserAverage: 1,
+            d.maxSubject = d.score.data.reduce((a, b) => {
+                return (a.score > b.score) ? a : b
+            }).name;
+            d.minSubject = d.score.data.reduce((a, b) => {
+                return (a.score < b.score) ? a : b
+            }).name;
+
+            for (var h of d.score.data) {
+                var data = {
+                    userAverage: Number(d.score.extra.find(e => e.type === "平均").value),
+                    average: Number(h.gpa),
+                    userScore: Number(h.score),
+                    rank: d.ranking.findIndex(e => e.name === h.name) + 1,
+                    isUnpass: {
+                        score: d.score.unpass.findIndex(e => e.name === h.name && e.type === "score") !== -1,
+                        gpa: d.score.unpass.findIndex(e => e.name === h.name && e.type === "gpa") !== -1 || Number(h.gpa) < 60
+                    },
+                    userScoreAndAverage: 1,
+                    userScoreAndUserAverage: 1,
+                }
+                data.userScoreAndAverage = data.userScore === data.average ? 1 : (data.userScore > data.average ? 2 : 0);
+                data.userScoreAndUserAverage = data.userScore === data.userAverage ? 1 : (data.userScore > data.userAverage ? 2 : 0);
+
+                d.scoreAna[h.name] = data;
             }
-            data.userScoreAndAverage = data.userScore === data.average ? 1 : (data.userScore > data.average ? 2 : 0);
-            data.userScoreAndUserAverage = data.userScore === data.userAverage ? 1 : (data.userScore > data.userAverage ? 2 : 0);
 
-            d.scoreAna[h.name] = data;
+            return d;
         }
 
-        if (d.isShared) {
-            setDisplayName(`${d.score.userInfo.userName ?? schoolNumber} (${d.score.userInfo.schoolNumber}) 的成績分享`);
+        var thisScore = dtl(scoreD);
+        var bfScore;
+        if (thisS > 0 && !thisScore.isShared) {
+            var g = scoreBefore[thisS - 1];
+            bfScore = await getScore(g["year"], g["term"], g["times"], g["testID"], global.accountData?.token).then(e => e.data);
+        } else if (thisScore.isShared) {
+            setDisplayName(`${thisScore.score.userInfo.userName ?? schoolNumber} (${thisScore.score.userInfo.schoolNumber}) 的成績分享`);
         }
 
-
-        setScoreData(d);
+        setScoreData({
+            thisScore,
+            bfScore
+        });
         return;
     }
 
@@ -142,6 +159,7 @@ export default ({ route, navigation }) => {
                 }));
                 return;
             }
+
             return sS(scoreD.data, "score", ids);
         }
 
@@ -155,8 +173,8 @@ export default ({ route, navigation }) => {
         });
 
         if (showSubject === "overview") {
-            var maxSubj = scoreData.score.data.find(e => e.name === scoreData.maxSubject);
-            var minSubj = scoreData.score.data.find(e => e.name === scoreData.minSubject);
+            var maxSubj = scoreData.thisScore.score.data.find(e => e.name === scoreData.thisScore.maxSubject);
+            var minSubj = scoreData.thisScore.score.data.find(e => e.name === scoreData.thisScore.minSubject);
             display = <>
                 <ScoreCard
                     subject="總覽"
@@ -176,16 +194,16 @@ export default ({ route, navigation }) => {
                             </>} onPress={() => sH(minSubj.name)} />
 
                             <ScoreUtil.MdP
-                                data={[(Number(scoreData.score.extra.find(e => e.type === "平均").value) / 100)]}
-                                display={scoreData.score.extra.find(e => e.type === "平均").value}
+                                data={[(Number(scoreData.thisScore.score.extra.find(e => e.type === "平均").value) / 100)]}
+                                display={scoreData.thisScore.score.extra.find(e => e.type === "平均").value}
                                 desc={<>
                                     是您的<Text style={{
                                         color: getTheme().colors.secondary
                                     }}>平均分數</Text>
                                 </>} />
                             <ScoreUtil.MdP
-                                data={[(Number(scoreData.score.extra.find(e => e.type === "平均").value) / 100)]}
-                                display={scoreData.score.extra.find(e => e.type === "總分").value}
+                                data={[(Number(scoreData.thisScore.score.extra.find(e => e.type === "平均").value) / 100)]}
+                                display={scoreData.thisScore.score.extra.find(e => e.type === "總分").value}
                                 desc={<>
                                     是您的<Text style={{
                                         color: getTheme().colors.secondary
@@ -198,18 +216,18 @@ export default ({ route, navigation }) => {
                 <ScoreCard
                     subject="排名"
                     score={<>
-                        <ScoreUtil.Mr title="班級排名" display={scoreData.score.extra.find(e => e.type === "排名")?.value ?? "不適用"} />
-                        <ScoreUtil.Mr title="年級排名" display={scoreData.score.extra.find(e => e.type === "年級排名")?.value ?? "不適用"} />
-                        <ScoreUtil.Mr title="科別排名" display={scoreData.score.extra.find(e => e.type === "科別排名")?.value ?? "不適用"} />
-                        <ScoreUtil.Mr title="類組排名" display={scoreData.score.extra.find(e => e.type === "類組排名")?.value ?? "不適用"} />
+                        <ScoreUtil.Mr title="班級排名" display={scoreData.thisScore.score.extra.find(e => e.type === "排名")?.value ?? "不適用"} />
+                        <ScoreUtil.Mr title="年級排名" display={scoreData.thisScore.score.extra.find(e => e.type === "年級排名")?.value ?? "不適用"} />
+                        <ScoreUtil.Mr title="科別排名" display={scoreData.thisScore.score.extra.find(e => e.type === "科別排名")?.value ?? "不適用"} />
+                        <ScoreUtil.Mr title="類組排名" display={scoreData.thisScore.score.extra.find(e => e.type === "類組排名")?.value ?? "不適用"} />
                     </>}
                 />
             </>;
             return;
         }
 
-        var subj = scoreData.score.data.find(e => e.name === showSubject);
-        var data = scoreData.scoreAna[showSubject];
+        var subj = scoreData.thisScore.score.data.find(e => e.name === showSubject);
+        var data = scoreData.thisScore.scoreAna[showSubject];
         display = <>
             <ScoreCard key={subj.name + subj.score} subject={subj.name} score={<>
                 <View>
@@ -259,12 +277,12 @@ export default ({ route, navigation }) => {
                     }).then(() => console.log("User share the score.")).catch(() => console.log("User cancel the share."));
                 }
                 
-                if (scoreData.isShared) {
+                if (scoreData.thisScore.isShared) {
                     genLink(score);
                     return;
                 }
 
-                var scoreD = await shareScore(scoreData.scoreID[0], scoreData.scoreID[1], scoreData.scoreID[2], scoreData.scoreID[3], global.accountData?.token);
+                var scoreD = await shareScore(scoreData.thisScore.scoreID[0], scoreData.thisScore.scoreID[1], scoreData.thisScore.scoreID[2], scoreData.thisScore.scoreID[3], global.accountData?.token);
                 if (!scoreD.data) {
                     setAlert(makeNeedLoginAlert(() => {
                         navigation.goBack();
@@ -290,7 +308,7 @@ export default ({ route, navigation }) => {
                     }).then(() => console.log("User share the score.")).catch(() => console.log("User cancel the share"));
                 }
                 
-                if (scoreData.isShared) {
+                if (scoreData.thisScore.isShared) {
                     try {
                         var data = "data:image/png;base64," + await getSharedImage(score).then(e => e.base64());
                     } catch (err) {
@@ -304,7 +322,7 @@ export default ({ route, navigation }) => {
                 }
 
                 try {
-                    var data = "data:image/png;base64," + await shareScoreImage(scoreData.scoreID[0], scoreData.scoreID[1], scoreData.scoreID[2], scoreData.scoreID[3], global.accountData?.token).then(e => e.base64());
+                    var data = "data:image/png;base64," + await shareScoreImage(scoreData.thisScore.scoreID[0], scoreData.thisScore.scoreID[1], scoreData.thisScore.scoreID[2], scoreData.thisScore.scoreID[3], global.accountData?.token).then(e => e.base64());
                 } catch (err) {
                     setAlert(showAlert("錯誤", "無法生成成績圖片!", "關閉", () => {
                         setAlert(<></>);
@@ -315,12 +333,12 @@ export default ({ route, navigation }) => {
                 break;
             
             case 2:
-                if (scoreData.isShared) {
+                if (scoreData.thisScore.isShared) {
                     createQRCodeDisplay(`https://hlhsinfo.ml/s/${score}`);
                     return;
                 }
 
-                var scoreD = await shareScore(scoreData.scoreID[0], scoreData.scoreID[1], scoreData.scoreID[2], scoreData.scoreID[3], global.accountData?.token);
+                var scoreD = await shareScore(scoreData.thisScore.scoreID[0], scoreData.thisScore.scoreID[1], scoreData.thisScore.scoreID[2], scoreData.thisScore.scoreID[3], global.accountData?.token);
                 if (!scoreD.data) {
                     setAlert(makeNeedLoginAlert(() => {
                         navigation.goBack();
@@ -335,7 +353,7 @@ export default ({ route, navigation }) => {
         }
     }
 
-    if (scoreData.type && scoreData.score.data.length !== 0) {
+    if (scoreData.thisScore.type && scoreData.thisScore.score.data.length !== 0) {
         if (subjects.length === 0) {
             var t = [];
             t.push({
@@ -343,7 +361,7 @@ export default ({ route, navigation }) => {
                 label: "總覽",
                 icon: "view-dashboard"
             })
-            for (var g of scoreData.score.data) {
+            for (var g of scoreData.thisScore.score.data) {
                 t.push({
                     value: g.name,
                     label: g.name
@@ -356,7 +374,7 @@ export default ({ route, navigation }) => {
             all: () => { },
             score: () => mD()
         };
-        (type[scoreData.type] ?? (() => console.error(`[Type Error] Unknown score type: ${scoreData.type}`)))();
+        (type[scoreData.thisScore.type] ?? (() => console.error(`[Type Error] Unknown score type: ${scoreData.thisScore.type}`)))();
     }
 
     return (
