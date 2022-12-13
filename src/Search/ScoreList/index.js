@@ -25,7 +25,7 @@ export default ({ navigation }) => {
 
             global.accountData.scoreList = scores.data;
 
-            for (var g of scores.data) {
+            for (let g of scores.data) {
                 dp.push(<SelectCard key={`${g.year}-${g.term}-${g.times}-${g.testID}`} onPress={
                     () => navigation.navigate("Score", {
                         score: `${g.year}-${g.term}-${g.times}-${g.testID}`

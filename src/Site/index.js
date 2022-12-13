@@ -11,6 +11,7 @@ export default () => {
         width: Dimensions.get("screen").width,
         height: Dimensions.get("screen").height
     });
+    const [canGoBack, setCanGoBack] = useState(false);
     const webviewRef = useRef(false);
 
     function sSSB(content) {
@@ -19,7 +20,10 @@ export default () => {
 
     const handleBackButtonPress = () => {
         try {
+            if (!canGoBack) return false;
+
             webviewRef.current?.goBack();
+            return true;
         } catch (err) {
             console.log("[WebView Back Handler] Error : ", err.message);
         }
@@ -27,15 +31,18 @@ export default () => {
 
     useEffect(() => {
         BackHandler.addEventListener("hardwareBackPress", handleBackButtonPress);
+        return () => {
+            BackHandler.removeEventListener("hardwareBackPress", handleBackButtonPress);
+        };
+    }, [canGoBack]);
+
+    useEffect(() => {
         Dimensions.addEventListener("change", ({ window: { width, height } }) => {
             setSize({
                 height,
                 width
             });
         });
-        return () => {
-            BackHandler.removeEventListener("hardwareBackPress", handleBackButtonPress);
-        };
     }, []);
 
     return (
@@ -64,6 +71,9 @@ export default () => {
                     nestedScrollEnabled
                     onError={(err) => sSSB(netErrList(err.nativeEvent.description))}
                     setSupportMultipleWindows={false}
+                    onNavigationStateChange={(event) => {
+                        setCanGoBack(event.canGoBack);
+                    }}
                     onShouldStartLoadWithRequest={(event) => {
                         if (!event.url.startsWith("https://www.hlhs.hlc.edu.tw/")) {
                             openLink(event.url);
