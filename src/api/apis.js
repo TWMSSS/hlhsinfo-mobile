@@ -132,6 +132,8 @@ export const cleanCache = async (token) => {
 }
 
 export const autoGetCaptcha = async (token) => {
+    throw new Error("This API is deprecated!");
+
     var data = await getLoginCaptcha(token).then(e => e.path());
     var fm = new FormData();
     fm.append("image", {

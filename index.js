@@ -25,7 +25,7 @@ PushNotification.createChannel({
     (created) => console.log(`[HLHSInfo Push Notification] Create notification channel "notification" returned "${created}"`)
 );
 
-async function backgroundEvent() {
+async function backgroundEvent(taskID) {
     console.log("[HLHSInfo Background Service] Background fetch started!");
 
     const storagedNotify = JSON.parse(await readLocal("@notify"));
@@ -46,6 +46,8 @@ async function backgroundEvent() {
     }
 
     console.log("[HLHSInfo Background Service] Background fetch ended!");
+
+    BackgroundFetch.finish(taskID);
 }
 
 BackgroundFetch.configure({

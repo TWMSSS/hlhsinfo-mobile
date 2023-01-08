@@ -14,16 +14,13 @@ import {
     getTheme,
     showAlert,
     showInput,
-    blobToBase64,
     showConfirm,
     openLink,
     removeLocal,
     showSnackBar,
-    saveLocal
 } from "../../util";
 import SelectCard from "../../SelectCard";
 import {
-    autoGetCaptcha,
     getLoginCaptcha,
     getLoginInfo,
     getUserInfo,
@@ -137,7 +134,7 @@ export default ({ navigation }) => {
                 })
             }
 
-            async function mCC() {
+            async function mCC(setCap = (text) => captcha = text) {
                 var cap = "data:image/png;base64," + await getLoginCaptcha(loginToken).then(e => e.base64());
 
                 setAlert(showInput("輸入驗證碼", <><Paragraph>您先前已經登入成功過了，現在只需要輸入驗證碼即可登入!</Paragraph><Image source={{ uri: cap, width: "100%", height: 150 }} resizeMode="contain" style={{
@@ -150,22 +147,24 @@ export default ({ navigation }) => {
                 }, "確定", close));
             }
 
-            if (!autoCaptcha) autoCaptcha = await showOptionChoise();
-            await saveLocal("@data/config", JSON.stringify({ ...global.config, autoCaptcha }));
+            // if (!autoCaptcha) autoCaptcha = await showOptionChoise();
+            // await saveLocal("@data/config", JSON.stringify({ ...global.config, autoCaptcha }));
 
-            const setCap = (text) => captcha = text;
+            // const setCap = (text) => captcha = text;
 
-            if (autoCaptcha) {
-                setAlert(<></>);
-                try {
-                    captcha = await autoGetCaptcha(loginToken);
-                    close();
-                } catch (err) {
-                    mCC();
-                }
-            } else {
-                mCC();
-            }
+            // if (autoCaptcha) {
+            //     setAlert(<></>);
+            //     try {
+            //         captcha = await autoGetCaptcha(loginToken);
+            //         close();
+            //     } catch (err) {
+            //         mCC();
+            //     }
+            // } else {
+            //     mCC();
+            // }
+
+            mCC();
         } else if (!logindata && !global.accountData) {
             setLoginStatus(false);
         }
@@ -238,7 +237,7 @@ export default ({ navigation }) => {
                     </Text>
                 </Card>
                 <View style={{ margin: 15 }}>
-                    <G title="實用功能">
+                    <G title="快速開啟">
                         <SelectCard icon="arrow-top-right" onPress={() => openLink("http://210.62.247.21/ePortFolio/")}>學習歷程平台</SelectCard>
                         <SelectCard icon="arrow-top-right" onPress={() => openLink("https://web.jhenggao.com/iLearning/Login.aspx")}>自主學習計畫平台</SelectCard>
                         <SelectCard icon="arrow-top-right" onPress={() => openLink("http://shinher.hlhs.hlc.edu.tw/winrh/default.asp")}>重補修選課系統</SelectCard>
