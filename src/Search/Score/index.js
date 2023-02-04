@@ -2,7 +2,8 @@ import { useEffect, useState, useRef } from "react";
 import {
     Text,
     ActivityIndicator,
-    SegmentedButtons
+    SegmentedButtons,
+    useTheme
 } from "react-native-paper";
 import { Dimensions, View, ScrollView, LayoutAnimation } from "react-native";
 import BottomSheet, { BottomSheetScrollView, BottomSheetModalProvider } from "@gorhom/bottom-sheet";
@@ -10,7 +11,7 @@ import Share from "react-native-share";
 
 import { getScore, getShared, getSharedImage, shareScore, shareScoreImage } from "../../api/apis";
 import Page from "../../Page";
-import { showAlert, getTheme, makeNeedLoginAlert, showLoading, QRCodeDisplay } from "../../util";
+import { showAlert, makeNeedLoginAlert, showLoading, QRCodeDisplay } from "../../util";
 import InfoCard from "../InfoCard";
 import * as ScoreUtil from "./util";
 
@@ -37,6 +38,8 @@ export default ({ route, navigation }) => {
     const [subjects, setSubjects] = useState([]);
     const [displayName, setDisplayName] = useState("成績查詢");
     const [bottomSheetStatus, setBottomSheetStatus] = useState(-1);
+
+    const theme = useTheme();
 
     var display = <ActivityIndicator animating={true} />;
 
@@ -90,8 +93,9 @@ export default ({ route, navigation }) => {
             }).name;
 
             for (var h of d.score.data) {
+                const useravg = Number(d.score.extra.find(e => e.type === "平均").value);
                 var data = {
-                    userAverage: Number(d.score.extra.find(e => e.type === "平均").value),
+                    userAverage: useravg === useravg ? useravg : 0,
                     average: Number(h.gpa),
                     userScore: Number(h.score),
                     rank: d.ranking.findIndex(e => e.name === h.name) + 1,
@@ -113,6 +117,7 @@ export default ({ route, navigation }) => {
 
         var thisScore = dtl(scoreD);
         var bfScore;
+
         if (thisS > 0 && !thisScore.isShared) {
             var g = scoreBefore[thisS - 1];
             bfScore = await getScore(g["year"], g["term"], g["times"], g["testID"], global.accountData?.token).then(e => e.data);
@@ -167,6 +172,7 @@ export default ({ route, navigation }) => {
     }, []);
 
     function mD() {
+        const thm = Object.assign({}, theme);
         LayoutAnimation.configureNext({
             ...LayoutAnimation.Presets.spring,
             duration: 200
@@ -175,9 +181,13 @@ export default ({ route, navigation }) => {
         if (showSubject === "overview") {
             var maxSubj = scoreData.thisScore.score.data.find(e => e.name === scoreData.thisScore.maxSubject);
             var minSubj = scoreData.thisScore.score.data.find(e => e.name === scoreData.thisScore.minSubject);
+
+            const average = Number(scoreData.thisScore.score.extra.find(e => e.type === "平均").value);
+            const total = Number(scoreData.thisScore.score.extra.find(e => e.type === "總分").value);
             display = <>
                 <InfoCard
                     title="總覽"
+                    theme={thm}
                     data={<>
                         <View>
                             <ScoreUtil.MdB name={maxSubj.name} desc={<>
@@ -188,25 +198,25 @@ export default ({ route, navigation }) => {
                             </>} onPress={() => sH(maxSubj.name)} />
                             <ScoreUtil.MdB name={minSubj.name} desc={<>
                                 是您成績中<Text style={{
-                                    color: getTheme().colors.onErrorContainer,
+                                    color: theme.colors.onErrorContainer,
                                     fontWeight: "bold"
                                 }}>最差</Text>的科目
                             </>} onPress={() => sH(minSubj.name)} />
 
                             <ScoreUtil.MdP
-                                data={[(Number(scoreData.thisScore.score.extra.find(e => e.type === "平均").value) / 100)]}
-                                display={scoreData.thisScore.score.extra.find(e => e.type === "平均").value}
+                                data={[((average === average ? average : 0) / 100)]}
+                                display={average === average ? String(average) : "不適用"}
                                 desc={<>
                                     是您的<Text style={{
-                                        color: getTheme().colors.secondary
+                                        color: theme.colors.secondary
                                     }}>平均分數</Text>
                                 </>} />
                             <ScoreUtil.MdP
-                                data={[(Number(scoreData.thisScore.score.extra.find(e => e.type === "平均").value) / 100)]}
-                                display={scoreData.thisScore.score.extra.find(e => e.type === "總分").value}
+                                data={[((average === average ? average : 0) / 100)]}
+                                display={total === total ? String(total) : "不適用"}
                                 desc={<>
                                     是您的<Text style={{
-                                        color: getTheme().colors.secondary
+                                        color: theme.colors.secondary
                                     }}>總分</Text>
                                 </>} />
                         </View>
@@ -215,6 +225,7 @@ export default ({ route, navigation }) => {
 
                 <InfoCard
                     title="排名"
+                    theme={thm}
                     data={<>
                         <ScoreUtil.Mr title="班級排名" display={scoreData.thisScore.score.extra.find(e => e.type === "排名")?.value ?? "不適用"} />
                         <ScoreUtil.Mr title="年級排名" display={scoreData.thisScore.score.extra.find(e => e.type === "年級排名")?.value ?? "不適用"} />
@@ -229,38 +240,41 @@ export default ({ route, navigation }) => {
         var subj = scoreData.thisScore.score.data.find(e => e.name === showSubject);
         var data = scoreData.thisScore.scoreAna[showSubject];
         display = <>
-            <InfoCard key={subj.name + subj.score} title={subj.name} data={<>
+            <InfoCard key={subj.name + subj.score} title={subj.name} theme={thm} data={<>
                 <View>
                     <ScoreUtil.MdPT
                         data={[(data.userScore / 100)]}
                         title="您的成績"
                         display={<Text style={{
-                            color: !data.isUnpass.score ? "" : getTheme().colors.error
-                        }}>{subj.score}</Text>}
+                            color: !data.isUnpass.score ? "" : theme.colors.error,
+                            fontWeight: "bold"
+                        }} >{subj.score}</Text>}
                         chartConfig={
-                            !data.isUnpass.score ? ScoreUtil.getChartConfig() : ScoreUtil.mCCF(getTheme().colors.error)
+                            !data.isUnpass.score ? ScoreUtil.getChartConfig() : ScoreUtil.mCCF(theme.colors.error)
                         } />
                     <ScoreUtil.MdPT
                         data={[(data.average / 100)]}
                         title="班級平均"
                         display={<Text style={{
-                            color: !data.isUnpass.gpa ? "" : getTheme().colors.error
+                            color: !data.isUnpass.gpa ? "" : theme.colors.error,
+                            fontWeight: "bold"
                         }}>{subj.gpa}</Text>}
                         chartConfig={
-                            !data.isUnpass.gpa ? ScoreUtil.getChartConfig() : ScoreUtil.mCCF(getTheme().colors.error)
+                            !data.isUnpass.gpa ? ScoreUtil.getChartConfig() : ScoreUtil.mCCF(theme.colors.error)
                         } />
                 </View>
             </>} />
 
             <InfoCard
                 title="詳細資訊"
+                theme={thm}
                 data={<>
                     <ScoreUtil.Mr title={<>在您<Text style={{
-                        color: getTheme().colors.secondary
+                        color: theme.colors.secondary
                     }}>所有成績中</Text>排</>} display={data.rank} />
 
-                    <ScoreUtil.MrD type="班級的平均" scoreType={data.userScoreAndAverage} score={(Math.abs(data.average - data.userScore)).toFixed(2)} />
-                    <ScoreUtil.MrD type="您的總平均" scoreType={data.userScoreAndUserAverage} score={(Math.abs(data.userAverage - data.userScore)).toFixed(2)} />
+                    <ScoreUtil.MrD type="班級的平均" scoreType={data.userScoreAndAverage} score={(Math.abs(data.average - data.userScore)).toFixed(2)} theme={theme} />
+                    <ScoreUtil.MrD type="您的總平均" scoreType={data.userScoreAndUserAverage} score={(Math.abs(data.userAverage - data.userScore)).toFixed(2)} theme={theme} />
                 </>}
             />
         </>;
@@ -428,10 +442,10 @@ export default ({ route, navigation }) => {
                         backgroundColor: "#000000A0"
                     }}
                     backgroundStyle={{
-                        backgroundColor: getTheme().colors.background
+                        backgroundColor: theme.colors.background
                     }}
                     handleIndicatorStyle={{
-                        backgroundColor: getTheme().colors.onBackground
+                        backgroundColor: theme.colors.onBackground
                     }}
                     containerStyle={{
                         backgroundColor: bottomSheetStatus !== -1 ? "#000000A0" : "#00000000",
@@ -449,9 +463,9 @@ export default ({ route, navigation }) => {
                     <BottomSheetScrollView style={{
                         margin: 15
                     }}>
-                        <ScoreUtil.ShOption text="以連結分享" icon="link" onPress={() => shareScoreData(0)} />
-                        <ScoreUtil.ShOption text="以圖片分享" icon="image" onPress={() => shareScoreData(1)} />
-                        <ScoreUtil.ShOption text="以 QR Code 分享" icon="qrcode" onPress={() => shareScoreData(2)} />
+                        <ScoreUtil.ShOption text="以連結分享" icon="link" onPress={() => shareScoreData(0)} theme={theme} />
+                        <ScoreUtil.ShOption text="以圖片分享" icon="image" onPress={() => shareScoreData(1)} theme={theme} />
+                        <ScoreUtil.ShOption text="以 QR Code 分享" icon="qrcode" onPress={() => shareScoreData(2)} theme={theme} />
                     </BottomSheetScrollView>
                         
                 </BottomSheet>

@@ -1,4 +1,5 @@
 # hlhsinfo-mobile
+
 [![Release Build](https://github.com/TWMSSS/hlhsinfo-mobile/actions/workflows/release-build.yaml/badge.svg)](https://github.com/TWMSSS/hlhsinfo-mobile/actions/workflows/release-build.yaml)
 
 一個基於 [HLHSInfo](https://github.com/TWMSSS/hlhsinfo)之API 所做出來的行動裝置專用版本。
@@ -11,17 +12,18 @@
 
 ## 建置
 
-> **Warning**
+> **Warning**  
 > 我並無測試使用IOS版本建置，若需要完整文檔請至`React Native`官方文檔查看!
 
-> **Note**
+> **Note**  
 > 建置Android版本時，您需要於`android/app`目錄底下生成`signing.keystore`之keystore簽名檔，並於`android`目錄底下新增`keystore.properties`檔案  
 > 內容如下:
+
 > ```properties
 > storePassword=signing.keystore之密碼
 > keyAlias=signing.keystore之alias
 > keyPassword=keyAlias之密碼
 > ```
 
- * **建置Android App Bundle** 使用命令`cd android && gradle bundleRelease`
- * **建置Android Application Package** 使用命令`cd android && gradle assembleRelease`
+* **建置Android App Bundle** 使用命令`cd android && gradle bundleRelease`
+* **建置Android Application Package** 使用命令`cd android && gradle assembleRelease`

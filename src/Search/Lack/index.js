@@ -2,16 +2,17 @@ import { useState, useEffect } from "react";
 import { getLack } from "../../api/apis";
 import { ContributionGraph } from "react-native-chart-kit";
 import { Dimensions, View, ScrollView } from "react-native";
-import { Text, DataTable, Portal, Modal } from "react-native-paper";
+import { Text, DataTable, Portal, Modal, useTheme } from "react-native-paper";
 
 import Page from "../../Page";
-import { getTheme, chartConfig, makeNeedLoginAlert, className, showLoading, calcPage, calcFromTo } from "../../util";
+import { chartConfig, makeNeedLoginAlert, className, showLoading, calcPage, calcFromTo } from "../../util";
 import InfoCard from "../InfoCard";
 
 export default ({ navigation }) => {
     const [lack, setLack] = useState();
     const [alert, setAlert] = useState(showLoading());
     const [page, setPage] = useState(0);
+    const theme = useTheme();
 
     const PageView = 10;
 
@@ -46,7 +47,7 @@ export default ({ navigation }) => {
         }
         function Title(prop) {
             return <Text variant="headlineSmall" style={{
-                color: getTheme().colors.outline
+                color: theme.colors.outline
             }}>{prop.children}</Text>
         }
         function Desc(prop) {
@@ -69,7 +70,7 @@ export default ({ navigation }) => {
         setAlert(
             <Portal>
                 <Modal visible={true} onDismiss={hide} contentContainerStyle={{
-                    backgroundColor: getTheme().colors.background,
+                    backgroundColor: theme.colors.background,
                     padding: 30,
                     margin: 20,
                     borderRadius: 30
@@ -102,7 +103,7 @@ export default ({ navigation }) => {
                         fontWeight: "bold"
                     }}>{prop.value}</Text>
                     <Text variant="bodyMedium" style={{
-                        color: getTheme().colors.outline,
+                        color: theme.colors.outline,
                         marginLeft: 5
                     }}>節</Text>
                 </View>
@@ -128,6 +129,7 @@ export default ({ navigation }) => {
                 totData.push(<InfoCard
                     key={Math.floor(Math.random() * 10000)}
                     title={lack.total.termUp[i].name}
+                    theme={theme}
                     data={<>
                         <View style={{
                             display: "flex",
@@ -170,7 +172,7 @@ export default ({ navigation }) => {
                     chartConfig={chartConfig}
                 />
                 <Text variant="labelMedium" style={{
-                    color: getTheme().colors.outline,
+                    color: theme.colors.outline,
                     textAlign: "center",
                     top: -20
                 }}>近100天的缺曠紀錄</Text>

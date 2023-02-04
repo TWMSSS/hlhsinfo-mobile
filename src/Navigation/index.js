@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTheme } from 'react-native-paper';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -8,7 +9,6 @@ import { Linking } from 'react-native';
 const Stack = createStackNavigator();
 const Tab = createMaterialBottomTabNavigator();
 
-import { getTheme } from '../util';
 import Schedule from '../Schedule';
 import Search from '../Search';
 import User from '../User';
@@ -18,10 +18,11 @@ import Site from '../Site';
 export default () => {
     const HomeComponent = ({ navigation }) => {
         const [openedLink, setOpenedLink] = useState("");
+        const theme = useTheme();
 
         function gI(s, nFI, fI) {
             return <MaterialCommunityIcons style={{
-                color: getTheme().colors.onBackground
+                color: theme.colors.onBackground
             }} size={24} name={s ? nFI : fI } />;
         }
 
@@ -93,7 +94,7 @@ export default () => {
     }
 
     return (
-        <NavigationContainer theme={getTheme()}>
+        <NavigationContainer theme={useTheme()}>
             <Stack.Navigator screenOptions={{ headerShown: false, animationEnabled: true }} initialRouteName="Home">
                 <Stack.Screen name='Home' component={HomeComponent} options={{
                     animationEnabled: true

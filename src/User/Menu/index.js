@@ -4,14 +4,14 @@ import {
     Text,
     Card,
     Paragraph,
-    Divider
+    Divider,
+    useTheme
 } from "react-native-paper";
 import Keychain from 'react-native-keychain';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import Page from "../../Page";
 import {
-    getTheme,
     showAlert,
     showInput,
     showConfirm,
@@ -29,6 +29,7 @@ import {
 } from "../../api/apis";
 
 export default ({ navigation }) => {
+    const theme = useTheme();
     const [username, setUsername] = useState(global.accountData?.userName ?? global.accountData?.schoolNumber ?? "載入中...");
     const [alert, setAlert] = useState(<></>);
     const [userImg, setUserImg] = useState(global.accountData?.userImg
@@ -36,8 +37,8 @@ export default ({ navigation }) => {
             borderRadius: 100,
         }} />
         : <MaterialCommunityIcons name="account" size={100} style={{
-            backgroundColor: getTheme().colors.primary,
-            color: getTheme().colors.onPrimary,
+            backgroundColor: theme.colors.primary,
+            color: theme.colors.onPrimary,
             width: 100,
             borderRadius: 100,
         }} />
@@ -51,8 +52,8 @@ export default ({ navigation }) => {
                 borderRadius: 100,
             }} />
             : <MaterialCommunityIcons name="account" size={100} style={{
-                backgroundColor: getTheme().colors.primary,
-                color: getTheme().colors.onPrimary,
+                backgroundColor: theme.colors.primary,
+                color: theme.colors.onPrimary,
                 width: 100,
                 borderRadius: 100,
             }} />)
@@ -137,7 +138,7 @@ export default ({ navigation }) => {
             async function mCC(setCap = (text) => captcha = text) {
                 var cap = "data:image/png;base64," + await getLoginCaptcha(loginToken).then(e => e.base64());
 
-                setAlert(showInput("輸入驗證碼", <><Paragraph>您先前已經登入成功過了，現在只需要輸入驗證碼即可登入!</Paragraph><Image source={{ uri: cap, width: "100%", height: 150 }} resizeMode="contain" style={{
+                setAlert(showInput("輸入驗證碼", <><Paragraph>您先前已經登入成功過了，現在只需要輸入驗證碼即可登入!</Paragraph><Image source={{ uri: cap, height: 150 }} resizeMode="contain" style={{
                     borderRadius: 15,
                     width: "100%"
                 }} /></>, {
@@ -216,7 +217,7 @@ export default ({ navigation }) => {
             >
                 <Card style={{
                     height: 150,
-                    backgroundColor: getTheme().colors.onSurface,
+                    backgroundColor: theme.colors.onSurface,
                     borderRadius: 0
                 }} onPress={() => !global.accountData ? navigation.navigate("Login") : logout()}>
                     <View style={{
@@ -226,7 +227,7 @@ export default ({ navigation }) => {
                         {userImg}
                     </View>
                     <Text numberOfLines={1} style={{
-                        color: getTheme().colors.surface,
+                        color: theme.colors.surface,
                         left: 150,
                         top: 55,
                         position: "absolute",

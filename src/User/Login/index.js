@@ -1,17 +1,19 @@
 import { useState, useRef } from "react";
 import { View, Image } from "react-native";
-import { Paragraph, Text, TextInput, Button } from "react-native-paper";
+import { Paragraph, Text, TextInput, Button, Checkbox, useTheme } from "react-native-paper";
 import Keychain from 'react-native-keychain';
 
 import Page from "../../Page";
-import { getTheme, openLink, showInput, showAlert, showLoading } from "../../util";
+import { openLink, showInput, showAlert, showLoading } from "../../util";
 import { login, getLoginCaptcha, getLoginInfo, getUserInfoShort } from "../../api/apis";
 
 export default ({ navigation }) => {
     const [password, setPassword] = useState("");
     const [username, setUsername] = useState("");
+    const [saveAccount, setSaveAccount] = useState(true);
     const [buttonDisable, setButtonDisable] = useState(false);
     const [alert, setAlert] = useState(<></>);
+    const theme = useTheme();
     const ipt1 = useRef();
 
     async function cL() {
@@ -53,7 +55,7 @@ export default ({ navigation }) => {
                     ...global.accountData,
                     ...(await getUserInfoShort(global.accountData.token)).data
                 };
-                Keychain.setGenericPassword(username, password);
+                if (saveAccount) Keychain.setGenericPassword(username, password);
                 navigation.navigate("Menu");
                 return;
             }
@@ -63,7 +65,7 @@ export default ({ navigation }) => {
             }));
         }
         const cap = "data:image/png;base64," + await getLoginCaptcha(loginInfo.authToken).then(e => e.base64());
-        setAlert(showInput("輸入驗證碼", <><Paragraph>您必須輸入驗證碼以登入成績查詢網站</Paragraph><Image source={{ uri: cap, width: "100%", height: 150 }} resizeMode="contain" style={{
+        setAlert(showInput("輸入驗證碼", <><Paragraph>您必須輸入驗證碼以登入成績查詢網站</Paragraph><Image source={{ uri: cap, height: 150 }} resizeMode="contain" style={{
             borderRadius: 15,
             width: "100%"
         }} /></>, {
@@ -97,7 +99,7 @@ export default ({ navigation }) => {
                     <TextInput
                         label={"密碼"}
                         autoComplete="password"
-                        keyboardType={"password"}
+                        // keyboardType={"password"}
                         secureTextEntry={true}
                         mode="outlined"
                         style={{
@@ -107,8 +109,13 @@ export default ({ navigation }) => {
                         onChangeText={(text) => setPassword(text)}
                         // right={<TextInput.Icon onPress={() => setShowPassword(!showPassword)} icon={showPassword ? "eye-off" : "eye"}/>}
                     />
+                    <View style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center"
+                    }}><Checkbox status={saveAccount ? "checked" : "unchecked"} onPress={() => setSaveAccount(!saveAccount)} /><Text>儲存登入狀態</Text></View>
                     <Paragraph style={{
-                        color: getTheme().colors.outline,
+                        color: theme.colors.outline,
                         textAlign: "center"
                     }}>使用您的<Text style={{ fontWeight: "bold" }} onPress={() => openLink("http://shinher.hlhs.hlc.edu.tw/online")}>學校查詢系統帳號</Text>登入至花中查詢</Paragraph>
                     <Button
@@ -117,7 +124,7 @@ export default ({ navigation }) => {
                         disabled={buttonDisable}
                     >登入</Button>
                     <Paragraph style={{
-                        color: getTheme().colors.outline,
+                        color: theme.colors.outline,
                         textAlign: "center",
                     }}>登入即表示<Text style={{ fontWeight: "bold" }}>您同意將您的資料提供給花中查詢</Text>進行查詢與分析</Paragraph>
                     <Text style={{

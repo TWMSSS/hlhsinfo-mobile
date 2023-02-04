@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Dimensions, Image, View } from "react-native";
-import { ActivityIndicator, Card, Text } from "react-native-paper";
+import { ActivityIndicator, Card, Text, useTheme } from "react-native-paper";
 
 import Page from "../../Page";
 import ProfileCard from "./ProfileCard";
@@ -10,6 +10,7 @@ import { makeNeedLoginAlert } from "../../util";
 export default ({ navigation }) => {
     const [display, setDisplay] = useState(<ActivityIndicator animating={true} />);
     const [alert, setAlert] = useState(<></>);
+    const theme = useTheme();
 
     useEffect(() => {
         async function a() {
@@ -37,9 +38,9 @@ export default ({ navigation }) => {
                     <Image source={{ uri: scores.profileImg, height: 200 }} resizeMode="center" />
                 </Card>
             </View>
-            var list = [];
-            for (var g of scores.data) {
-                list.push(<ProfileCard key={g.name + Math.floor(Math.random() * 1000)} title={g.name} data={<Text variant="headlineSmall" style={{ fontWeight: "bold" }}>{g.value.trim().length !== 0 ? g.value : "(不適用)"}</Text>} />);
+            let list = [];
+            for (let g of scores.data) {
+                list.push(<ProfileCard key={g.name + Math.floor(Math.random() * 1000)} title={g.name} theme={theme} data={<Text variant="headlineSmall" style={{ fontWeight: "bold" }}>{g.value.trim().length !== 0 ? g.value : "(不適用)"}</Text>} />);
             }
 
             setDisplay([profileImg, ...list]);

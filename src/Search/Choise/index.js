@@ -3,18 +3,20 @@ import { View } from "react-native";
 import {
     Text,
     Button,
-    Divider
+    Divider,
+    useTheme
 } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 
 import SelectCard from "../../SelectCard";
-import { getTheme, showAlert, showSnackBar, showLoading } from "../../util";
+import { showAlert, showSnackBar, showLoading } from "../../util";
 import { cleanCache } from "../../api/apis";
 import Page from "../../Page";
 
 export default ({ route }) => {
     const navigation = useNavigation();
     const [logined, setLogined] = useState(!!global.accountData);
+    const theme = useTheme();
 
     function closeAlert() {
         setAlert(<></>);
@@ -48,8 +50,8 @@ export default ({ route }) => {
                 }
             >
                 <SelectCard onPress={() => navigation.navigate("Profile")} style={{
-                    backgroundColor: getTheme().colors.onPrimary,
-                    color: getTheme().colors.primary
+                    backgroundColor: theme.colors.onPrimary,
+                    color: theme.colors.primary
                 }}>個人資料查詢</SelectCard>
                 <SelectCard onPress={() => navigation.navigate("ScoreList")}>成績查詢</SelectCard>
                 <SelectCard onPress={() => navigation.navigate("Lack")}>缺曠查詢</SelectCard>

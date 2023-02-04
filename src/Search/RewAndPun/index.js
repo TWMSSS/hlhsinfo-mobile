@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
-import { DataTable, Text, Modal, Portal } from "react-native-paper";
+import { DataTable, Text, Modal, Portal, useTheme } from "react-native-paper";
 import { View, ScrollView } from "react-native";
 import { getRewAndPun } from "../../api/apis";
 
 import Page from "../../Page";
 import InfoCard from "../InfoCard";
-import { makeNeedLoginAlert, getTheme, showLoading, calcPage, calcFromTo } from "../../util";
+import { makeNeedLoginAlert, showLoading, calcPage, calcFromTo } from "../../util";
 
 export default ({ navigation }) => {
     const [record, setRecord] = useState();
     const [alert, setAlert] = useState(showLoading());
     const [page, setPage] = useState(0);
+    const theme = useTheme();
     const PageView = 10;
     
     useEffect(() => {
@@ -47,7 +48,7 @@ export default ({ navigation }) => {
         }
         function Title(prop) {
             return <Text variant="headlineSmall" style={{
-                color: getTheme().colors.outline
+                color: theme.colors.outline
             }}>{prop.children}</Text>
         }
         function Desc(prop) {
@@ -70,7 +71,7 @@ export default ({ navigation }) => {
         setAlert(
             <Portal>
                 <Modal visible={true} onDismiss={hide} contentContainerStyle={{
-                    backgroundColor: getTheme().colors.background,
+                    backgroundColor: theme.colors.background,
                     padding: 30,
                     margin: 20,
                     borderRadius: 30
@@ -106,7 +107,7 @@ export default ({ navigation }) => {
                         fontWeight: "bold"
                     }}>{prop.value}</Text>
                     <Text variant="bodyMedium" style={{
-                        color: getTheme().colors.outline,
+                        color: theme.colors.outline,
                         marginLeft: 5
                     }}>支</Text>
                 </View>
@@ -118,6 +119,7 @@ export default ({ navigation }) => {
                 status.push(<InfoCard
                     key={Math.floor(Math.random() * 10000)}
                     title={record.status[i].type}
+                    theme={theme}
                     data={
                         <View style={{
                             display: "flex",

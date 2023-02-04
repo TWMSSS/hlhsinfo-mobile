@@ -1,12 +1,13 @@
-import { Text, Card } from "react-native-paper";
+import { Text, Card, useTheme } from "react-native-paper";
 import { View } from "react-native";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import Page from "../../Page";
 import LicenseFile from "./LICENSES.json";
-import { getTheme } from "../../util";
 
 export default ({ navigation }) => {
+    const theme = useTheme();
+
     return (
         <Page
             title="開放原始碼授權"
@@ -15,7 +16,7 @@ export default ({ navigation }) => {
         >
             <View style={{
                 marginBottom: 30,
-                backgroundColor: getTheme().colors.primaryContainer,
+                backgroundColor: theme.colors.primaryContainer,
                 padding: 20,
                 borderRadius: 32
             }}>

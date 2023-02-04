@@ -155,9 +155,10 @@ export const MrP = (prop) => {
 }
 export const MrD = (prop) => {
     return (<MrP title={<>與<Text style={{
-        color: getTheme().colors.secondary
+        color: prop.theme.colors.secondary
     }}>{prop.type}</Text>差距</>} display={<Text style={{
-        color: prop.scoreType === 0 ? getTheme().colors.error : getTheme().colors.onBackground
+        color: prop.scoreType === 0 ? prop.theme.colors.error : prop.theme.colors.onBackground,
+        fontWeight: "bold"
     }}><MaterialCommunityIcons name={
         prop.scoreType === 2
             ? "chevron-up"
@@ -178,7 +179,7 @@ export const ShOption = (prop) => {
                 alignItems: "center",
                 flexDirection: "row"
             }}>
-                { prop.icon && <MaterialCommunityIcons name={prop.icon} color={getTheme().colors.onBackground} size={30} /> }
+                { prop.icon && <MaterialCommunityIcons name={prop.icon} color={prop.theme.colors.onBackground} size={30} /> }
                 <Text variant="headlineSmall"  style={{
                     padding: 15,
                 }}>{prop.text}</Text>

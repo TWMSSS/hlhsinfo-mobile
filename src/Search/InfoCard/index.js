@@ -1,12 +1,12 @@
 import React from "react";
 import { Card, Text } from "react-native-paper";
 import { View } from "react-native";
-import { getTheme } from "../../util";
 
-export default (prop = {
-    title: "",
-    data: "",
-    extra: ""
+export default ({
+    title = "",
+    data = "",
+    extra = "",
+    theme = {}
 }) => {
     return (
         <Card style={{
@@ -21,12 +21,12 @@ export default (prop = {
                     alignContent: "center"
                 }}>
                     <View>
-                        <Text variant="headlineLarge" style={{ marginBottom: 5, color: getTheme().colors.outline }}>{prop.title}</Text>
+                        <Text variant="headlineLarge" style={{ marginBottom: 5, color: theme.colors.outline }}>{title}</Text>
                         <View>
-                            {prop.data}
+                            {data}
                         </View>
-                        {prop.extra && <View>
-                            {prop.extra}
+                        {extra && <View>
+                            {extra}
                         </View>}
                     </View>
                 </View>

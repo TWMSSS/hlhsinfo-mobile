@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { ActivityIndicator } from "react-native-paper";
+import { ActivityIndicator, useTheme } from "react-native-paper";
 import SelectCard from "../../SelectCard";
 
 import Page from "../../Page";
-import { getTheme, makeNeedLoginAlert } from "../../util";
+import { makeNeedLoginAlert } from "../../util";
 import { getAllScoresList } from "../../api/apis";
 
 export default ({ navigation }) => {
     const [display, setDisplay] = useState(<ActivityIndicator animating={true} />);
     const [alert, setAlert] = useState(<></>);
+    const theme = useTheme();
 
     useEffect(() => {
         async function a() {
@@ -33,8 +34,8 @@ export default ({ navigation }) => {
                 }>{g.name}</SelectCard>);
             }
             dp.unshift(<SelectCard key={"all"} style={{
-                backgroundColor: getTheme().colors.onPrimary,
-                color: getTheme().colors.primary
+                backgroundColor: theme.colors.onPrimary,
+                color: theme.colors.primary
             }} onPress={() => navigation.navigate("ScoreAll")}>所有成績比較</SelectCard>);
             setDisplay(dp);
         }

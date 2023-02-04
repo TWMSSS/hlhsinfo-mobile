@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { Dimensions, View } from "react-native";
+import { useTheme } from "react-native-paper";
 import { WebView } from "react-native-webview";
 
 import Page from "../../../Page";
 import { showSnackBar, netErrList } from "../util";
-import { getTheme } from "../../../util";
 
 export default ({ navigation }) => {
     const [alert, setAlert] = useState(<></>);
@@ -12,6 +12,7 @@ export default ({ navigation }) => {
         width: Dimensions.get("screen").width,
         height: Dimensions.get("screen").height
     });
+    const theme = useTheme();
 
     function sSSB(content) {
         setAlert(showSnackBar(content, [], () => setAlert(<></>)));
@@ -56,7 +57,7 @@ export default ({ navigation }) => {
                     `var g=(d)=>document.querySelector(d);` +
                     `var k=(b)=>g(b).style.display="none";` +
                     `k("header");k("footer");k("#notify");k("#pathName");` +
-                    `g("body").style.backgroundColor="${getTheme().colors.background}";` +
+                    `g("body").style.backgroundColor="${theme.colors.background}";` +
                     `g("section > .md").style.width="95%";`
                 }
             />
