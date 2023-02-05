@@ -62,7 +62,7 @@ export default ({ route, navigation }) => {
             return notFound();
         }
 
-        const scoreBefore = global.accountData.scoreList.filter(e => e.type === 1);
+        const scoreBefore = global.accountData?.scoreList?.filter(e => e.type === 1) || [];
         const thisS = scoreBefore.findIndex(e => e.year === scoreID[0] && e.term === scoreID[1] && e.times === scoreID[2]);
 
         function dtl(scoreData) {
