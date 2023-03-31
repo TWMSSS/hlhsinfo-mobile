@@ -9,6 +9,7 @@ import {
 } from "react-native-paper";
 import { useNavigation } from '@react-navigation/native';
 
+import Auth from '../api/Auth';
 import { getAllSchedule, getSchedule } from "../api/apis";
 import {
     readLocal,
@@ -88,9 +89,9 @@ export default () => {
         var schedulea = schedule ?? JSON.parse(await readLocal("@data/schedule"));
         if (!schedule) setSchedule(schedulea);
         if (!schedulea) {
-            schedulea = await getAllSchedule(global.accountData.token);
+            schedulea = await Auth.callAPI(getAllSchedule);
             schedulea = schedulea.data.schedules;
-            schedulea = (await getSchedule(schedulea[0].class, schedulea[0].teacher, global.accountData.token)).data.schedule;
+            schedulea = (await Auth.callAPI(getSchedule, schedulea[0].class, schedulea[0].teacher)).data.schedule;
             setSchedule(schedulea);
             saveLocal("@data/schedule", JSON.stringify(schedulea));
         }
@@ -247,7 +248,7 @@ export default () => {
                     <Button mode="contained" onPress={() => navigation.navigate("user")}>登入</Button>
                 </View>);
                 var t = setInterval(() => {
-                    if (typeof global.accountData === "object" && global.accountData.schoolNumber) {
+                    if (Auth.isLogined) {
                         setDisplay(<ActivityIndicator animating={true} />);
                         clearInterval(t);
                         a();

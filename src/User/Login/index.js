@@ -1,11 +1,10 @@
 import { useState, useRef } from "react";
 import { View, Image } from "react-native";
 import { Paragraph, Text, TextInput, Button, Checkbox, useTheme } from "react-native-paper";
-import Keychain from 'react-native-keychain';
 
 import Page from "../../Page";
+import Auth, { ErrorCode } from "../../api/Auth";
 import { openLink, showInput, showAlert, showLoading } from "../../util";
-import { login, getLoginCaptcha, getLoginInfo, getUserInfoShort } from "../../api/apis";
 
 export default ({ navigation }) => {
     const [password, setPassword] = useState("");
@@ -16,61 +15,59 @@ export default ({ navigation }) => {
     const theme = useTheme();
     const ipt1 = useRef();
 
+    function showAl(title, desc) {
+        setAlert(showAlert(title, <>{desc}</>, "確定", () => {
+            setAlert(<></>);
+            setButtonDisable(false);
+        }));
+    }
+
     async function cL() {
+        setButtonDisable(true);
         if (!username || !password) {
-            setAlert(showAlert("通知", <>您必須輸入學號與密碼，才得以進行下一步驟!</>, "確定", () => setAlert(<></>)));
+            showAl("通知", "您必須輸入學號與密碼，才得以進行下一步驟!");
             return;
         }
-        setButtonDisable(true);
 
         try {
-            var loginInfo = await getLoginInfo();
+            var captchaImage = await Auth.getCaptcha();
         } catch (err) {
-            if (err.message === "Network request failed") {
-                setAlert(showAlert("需要網路連線", <>登入至花中查詢必須要有網路連線!</>, "確定", () => {
-                    setAlert(<></>);
-                    setButtonDisable(false);
-                }));
-                return;
+            switch (err[0]) {
+                case ErrorCode.ERR_NET:
+                    showAl("需要網路連線", "登入至花中查詢必須要有網路連線!");
+                    return;
+                
+                case ErrorCode.ERR_RICH_LIMIT:
+                    showAl("登入失敗", "登入失敗次數過多，請稍後再嘗試!");
+                    return;
             }
         }
-        if (!loginInfo.authToken) {
-            setAlert(showAlert("登入失敗", <>登入失敗次數過多，請稍後再嘗試!</>, "確定", () => {
-                setAlert(<></>);
-                setButtonDisable(false);
-            }));
-            return;
-        }
+
         var captcha = "";
-        const setCap = (text) => captcha = text;
+
         async function close() {
             setAlert(showLoading());
-            var d = await login(username, password, captcha, loginInfo.authToken);
-            if (d.authtoken) {
-                setAlert(<></>);
-                global.accountData = {
-                    token: d.authtoken
-                };
-                global.accountData = {
-                    ...global.accountData,
-                    ...(await getUserInfoShort(global.accountData.token)).data
-                };
-                if (saveAccount) Keychain.setGenericPassword(username, password);
-                navigation.navigate("Menu");
-                return;
+
+            try {
+                await Auth.login(username, password, captcha, saveAccount);
+            } catch (err) {
+                switch (err[0]) {
+                    case ErrorCode.ERR_RESPOND:
+                        showAl("登入失敗", `伺服器回傳: ${err[1]}`);
+                        return;
+                }
             }
-            setAlert(showAlert("登入失敗", <>伺服器回傳: {d.serverMessage}</>, "確定", () => {
-                setAlert(<></>);
-                setButtonDisable(false);
-            }));
+
+            console.log(Auth.userData, 37);
+
+            navigation.navigate("Menu");
         }
-        const cap = "data:image/png;base64," + await getLoginCaptcha(loginInfo.authToken).then(e => e.base64());
-        setAlert(showInput("輸入驗證碼", <><Paragraph>您必須輸入驗證碼以登入成績查詢網站</Paragraph><Image source={{ uri: cap, height: 150 }} resizeMode="contain" style={{
+        setAlert(showInput("輸入驗證碼", <><Paragraph>您必須輸入驗證碼以登入成績查詢網站</Paragraph><Image source={{ uri: captchaImage, height: 150 }} resizeMode="contain" style={{
             borderRadius: 15,
             width: "100%"
         }} /></>, {
             title: "驗證碼",
-            onChangeText: setCap,
+            onChangeText: (text) => captcha = text,
             type: "decimal-pad"
         }, "確定", close));
     }

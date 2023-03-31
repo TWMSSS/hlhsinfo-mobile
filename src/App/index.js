@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import SplashScreen from 'react-native-splash-screen';
 import DeviceInfo from "react-native-device-info";
 
@@ -6,6 +6,8 @@ import Navigation from "../Navigation";
 import { readLocal, saveLocal } from "../util";
 
 export default () => {
+    const alertRef = useRef(0);
+
     useEffect(() => {
         async function a() {
             var d = await readLocal("@data/config");

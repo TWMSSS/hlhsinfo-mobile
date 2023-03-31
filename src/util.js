@@ -22,6 +22,8 @@ import {
 } from "react-native";
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 
+import AlertCon from "./Alert";
+
 export const BOUNCE_RATE = 2000;
 
 export const saveLocal = async (name, value) => {
@@ -36,10 +38,10 @@ export const removeLocal = async (name) => {
     return await AsyncStorage.removeItem(name);
 }
 
-export const showLoading = (description = "載入中...") => {
+export const showLoading = (description = "載入中...",  onDismiss = () => { }) => {
     return (
         <Portal>
-            <Dialog visible={true}>
+            <Dialog visible={true} onDismiss={onDismiss}>
                 <Dialog.Content>
                     <View style={{
                         display: "flex",
@@ -59,10 +61,10 @@ export const showLoading = (description = "載入中...") => {
     );
 }
 
-export const showAlert = (title, description, closeText = "確認", onPress = () => { }) => {
+export const showAlert = (title, description, closeText = "確認", onPress = () => { }, onDismiss = () => { }) => {
     return (
         <Portal>
-            <Dialog visible={true}>
+            <Dialog visible={true} onDismiss={onDismiss}>
                 <Dialog.Title>{title}</Dialog.Title>
                 <Dialog.Content>
                     <Paragraph>{description}</Paragraph>
@@ -75,10 +77,10 @@ export const showAlert = (title, description, closeText = "確認", onPress = ()
     );
 }
 
-export const showConfirm = (title, description, allowText = "確認", denyText = "取消", onPress = () => { }) => {
+export const showConfirm = (title, description, allowText = "確認", denyText = "取消", onPress = () => { }, onDismiss = () => { }) => {
     return (
         <Portal>
-            <Dialog visible={true}>
+            <Dialog visible={true} onDismiss={onDismiss}>
                 <Dialog.Title>{title}</Dialog.Title>
                 <Dialog.Content>
                     <Paragraph>{description}</Paragraph>
@@ -97,10 +99,10 @@ export const showInput = (title, description, input = {
     onChangeText: () => { },
     type: "default",
     defaultValue: ""
-}, closeText = "確認", onPress = () => { }) => {
+}, closeText = "確認", onPress = () => { }, onDismiss = () => { }) => {
     return (
         <Portal>
-            <Dialog visible={true}>
+            <Dialog visible={true} onDismiss={onDismiss}>
                 <Dialog.Title>{title}</Dialog.Title>
                 <Dialog.Content>
                     {/* <Paragraph> */}

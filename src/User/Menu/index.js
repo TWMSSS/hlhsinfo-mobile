@@ -20,20 +20,16 @@ import {
     showSnackBar,
 } from "../../util";
 import SelectCard from "../../SelectCard";
-import {
-    getLoginCaptcha,
-    getLoginInfo,
-    getUserInfo,
-    getUserInfoShort,
-    login
-} from "../../api/apis";
+import Auth, { ErrorCode } from "../../api/Auth";
 
 export default ({ navigation }) => {
+    console.log(Auth.userData)
+
     const theme = useTheme();
-    const [username, setUsername] = useState(global.accountData?.userName ?? global.accountData?.schoolNumber ?? "載入中...");
+    const [username, setUsername] = useState(Auth.userData?.userName ?? Auth.userData?.schoolNumber ?? "載入中...");
     const [alert, setAlert] = useState(<></>);
-    const [userImg, setUserImg] = useState(global.accountData?.userImg
-        ? <Image source={{ uri: global.accountData.userImg, width: 100, height: 100 }} style={{
+    const [userImg, setUserImg] = useState(Auth.userImage !== null
+        ? <Image source={{ uri: Auth.userImage, width: 100, height: 100 }} style={{
             borderRadius: 100,
         }} />
         : <MaterialCommunityIcons name="account" size={100} style={{
@@ -43,12 +39,16 @@ export default ({ navigation }) => {
             borderRadius: 100,
         }} />
     );
-    const [logined, setLogined] = useState(typeof global.accountData === "object");
+    const [logined, setLogined] = useState(Auth.isLogined);
+
+    function showSnak(desc) {
+        setAlert(showSnackBar(desc, [], () => setAlert(<></>)));
+    }
 
     function setLoginStatus(login) {
-        setUsername(login ? global.accountData?.userName.trim().length !== 0 ? global.accountData?.userName : global.accountData?.schoolNumber : "登入");
-        setUserImg(login
-            ? <Image source={{ uri: global.accountData.userImg, width: 100, height: 100 }} style={{
+        setUsername(login ? Auth.userData?.userName?.trim().length !== 0 ? Auth.userData?.userName : Auth.userData?.schoolNumber : "登入");
+        setUserImg((login && Auth.userImage !== null)
+            ? <Image source={{ uri: Auth.userImage, width: 100, height: 100 }} style={{
                 borderRadius: 100,
             }} />
             : <MaterialCommunityIcons name="account" size={100} style={{
@@ -66,116 +66,75 @@ export default ({ navigation }) => {
                 setAlert(<></>);
                 return;
             }
+
+            Auth.logout();
             
-            Keychain.resetGenericPassword();
             setAlert(showSnackBar("已登出當前帳號，重新輸入帳號密碼即可登入。", [], () => setAlert(<></>)));
             setLoginStatus(false);
-            global.accountData = undefined;
         }))
     }
 
     async function b() {
-        var logindata = await Keychain.getGenericPassword();
-        if (logindata && !global.accountData ||
-            logindata && !global.accountData.schoolNumber) {
-            
+        const logindata = await Keychain.getGenericPassword();
+        if (logindata && !Auth.isLogined) {
             setUsername("載入中...");
             
             try {
-                var autoCaptcha = Boolean(global.config.autoCaptcha);
-                var loginToken = await getLoginInfo();
+                var captchaCode = await Auth.getCaptcha();
             } catch (err) {
-                if (err.message === "Network request failed") {
-                    setAlert(showSnackBar("需要網路連線以登入至花中查詢", [], () => setAlert(<></>)));
-                    setLoginStatus(false);
-                    setUsername("需要網路連線");
-                    return;
+                switch (err[0]) {
+                    case ErrorCode.ERR_NET:
+                        showSnak("需要網路連線以登入至花中查詢");
+                        setLoginStatus(false);
+                        setUsername("需要網路連線");
+                        return;
+                    
+                    case ErrorCode.ERR_RICH_LIMIT:
+                        showSnackBar("登入失敗次數過多，請稍後再嘗試!");
+                        setLoginStatus(false);
+                        return;
                 }
             }
-            
-            if (!loginToken.authToken) {
-                setAlert(showSnackBar("登入失敗次數過多，請稍後再嘗試!", [], () => setAlert(<></>)));
-                setLoginStatus(false);
+        
+            var captcha = "";
+
+            async function close() {
+                setAlert(<></>);
+
+                try {
+                    await Auth.login(logindata.username, logindata.password, captcha);
+                } catch (err) {
+                    switch (err[0]) {
+                        case ErrorCode.ERR_RESPOND:
+                            setAlert(showAlert("登入失敗", <>伺服器回傳: {d.serverMessage ?? d.message}</>, "確定", () => {
+                                setAlert(<></>);
+                                setLoginStatus(false);
+                            }));
+                            return;
+                    }
+                }
+
+                setLoginStatus(true);
                 return;
             }
 
-            loginToken = loginToken.authToken;
-            var captcha = "";
-            async function close() {
-                setAlert(<></>);
-                var d = await login(logindata.username, logindata.password, captcha, loginToken);
-                if (d.authtoken) {
-                    global.accountData = {
-                        token: d.authtoken
-                    };
-                    global.accountData = {
-                        ...global.accountData,
-                        ...(await getUserInfoShort(global.accountData.token)).data
-                    };
-                    setLoginStatus(true);
-                    return;
-                }
-                setAlert(showAlert("登入失敗", <>伺服器回傳: {d.serverMessage ?? d.message}</>, "確定", () => {
-                    setAlert(<></>);
-                    setLoginStatus(false);
-                }));
-            }
+            setAlert(showInput("輸入驗證碼", <><Paragraph>您先前已經登入成功過了，現在只需要輸入驗證碼即可登入!</Paragraph><Image source={{ uri: captchaCode, height: 150 }} resizeMode="contain" style={{
+                borderRadius: 15,
+                width: "100%"
+            }} /></>, {
+                title: "驗證碼",
+                onChangeText: (val) => captcha = val,
+                type: "decimal-pad"
+            }, "確定", close));
 
-            function showOptionChoise() {
-                return new Promise((res) => {
-                    setAlert(
-                        showConfirm(
-                            "免驗證碼登入",
-                            <><Paragraph>現在我們開放您使用免驗證碼登入功能，我們使用圖像辨識技術來免除掉麻煩的登入步驟。現階段圖像辨識模型約有 99% 的準確率。</Paragraph></>,
-                            "試用",
-                            "自行輸入驗證碼",
-                            res
-                        )
-                    )
-                })
-            }
-
-            async function mCC(setCap = (text) => captcha = text) {
-                var cap = "data:image/png;base64," + await getLoginCaptcha(loginToken).then(e => e.base64());
-
-                setAlert(showInput("輸入驗證碼", <><Paragraph>您先前已經登入成功過了，現在只需要輸入驗證碼即可登入!</Paragraph><Image source={{ uri: cap, height: 150 }} resizeMode="contain" style={{
-                    borderRadius: 15,
-                    width: "100%"
-                }} /></>, {
-                    title: "驗證碼",
-                    onChangeText: setCap,
-                    type: "decimal-pad"
-                }, "確定", close));
-            }
-
-            // if (!autoCaptcha) autoCaptcha = await showOptionChoise();
-            // await saveLocal("@data/config", JSON.stringify({ ...global.config, autoCaptcha }));
-
-            // const setCap = (text) => captcha = text;
-
-            // if (autoCaptcha) {
-            //     setAlert(<></>);
-            //     try {
-            //         captcha = await autoGetCaptcha(loginToken);
-            //         close();
-            //     } catch (err) {
-            //         mCC();
-            //     }
-            // } else {
-            //     mCC();
-            // }
-
-            mCC();
-        } else if (!logindata && !global.accountData) {
+        } else if (!logindata && !Auth.isLogined) {
             setLoginStatus(false);
         }
 
         var t = setInterval(() => {
             async function a() {
-                if (global.accountData && global.accountData.schoolNumber) {
+                if (Auth.isLogined) {
                     clearInterval(t);
-                    var data = (await getUserInfo(global.accountData.token)).data;
-                    global.accountData.userImg = data.profileImg;
                     setLoginStatus(true);
                 }
             };
@@ -185,7 +144,7 @@ export default ({ navigation }) => {
 
     useEffect(() => {
         var t = setInterval(() => {
-            if (typeof global.accountData === "undefined") {
+            if (!Auth.isLogined) {
                 clearInterval(t);
                 setLoginStatus(false);
                 b();

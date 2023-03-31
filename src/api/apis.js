@@ -13,7 +13,7 @@ export const getLoginCaptcha = async (token) => {
     });
 }
 
-export const login = async (username, password, captcha, token) => {
+export const login = async (token, username, password, captcha) => {
     return await JSONHTTP(defaultAPIURL + APIs.login, token, {
         method: "POST",
         headers: {
@@ -47,7 +47,7 @@ export const getAllSchedule = async (token) => {
     return await JSONHTTP(defaultAPIURL + APIs.scheduleList, token);
 }
 
-export const getScore = async (year, term, times, testID, token) => {
+export const getScore = async (token, year, term, times, testID) => {
     return await JSONHTTP(defaultAPIURL + APIs.scoreInfo, token, {
         method: "POST",
         headers: {
@@ -63,7 +63,7 @@ export const getScore = async (year, term, times, testID, token) => {
     });
 }
 
-export const getSchedule = async (className, teacher, token) => {
+export const getSchedule = async (token, className, teacher) => {
     return await JSONHTTP(defaultAPIURL + APIs.schedule + `?class=${className}&teacher=${teacher}`, token);
 }
 
@@ -91,7 +91,7 @@ export const getSharedImage = async (sharedid) => {
     return await RNFetchBlob.fetch("GET", defaultAPIURL + APIs.sharedImg + `?shared=${sharedid}`);
 }
 
-export const shareScore = async (year, term, times, testID, token) => {
+export const shareScore = async (token, year, term, times, testID) => {
     return await JSONHTTP(defaultAPIURL + APIs.share, token, {
         method: "POST",
         headers: {
@@ -107,7 +107,7 @@ export const shareScore = async (year, term, times, testID, token) => {
     });
 }
 
-export const shareScoreImage = async (year, term, times, testID, token) => {
+export const shareScoreImage = async (token, year, term, times, testID) => {
     return await RNFetchBlob.fetch("POST", defaultAPIURL + APIs.sharedImg, {
         'Content-Type': 'application/json',
         authorization: `Bearer ${token}`
