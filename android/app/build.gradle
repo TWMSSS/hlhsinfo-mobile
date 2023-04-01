@@ -96,8 +96,8 @@ android {
         applicationId "ml.hlhsinfo.twa"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 34
-        versionName "ver-0.11.1"
+        versionCode 35
+        versionName "ver-0.12"
 
         missingDimensionStrategy "store", "play"
     }
