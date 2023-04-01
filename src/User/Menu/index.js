@@ -23,12 +23,10 @@ import SelectCard from "../../SelectCard";
 import Auth, { ErrorCode } from "../../api/Auth";
 
 export default ({ navigation }) => {
-    console.log(Auth.userData)
-
     const theme = useTheme();
     const [username, setUsername] = useState(Auth.userData?.userName ?? Auth.userData?.schoolNumber ?? "載入中...");
     const [alert, setAlert] = useState(<></>);
-    const [userImg, setUserImg] = useState(Auth.userImage !== null
+    const [userImg, setUserImg] = useState(Auth.userImage
         ? <Image source={{ uri: Auth.userImage, width: 100, height: 100 }} style={{
             borderRadius: 100,
         }} />
@@ -125,35 +123,28 @@ export default ({ navigation }) => {
                 title: "驗證碼",
                 onChangeText: (val) => captcha = val,
                 type: "decimal-pad"
-            }, "確定", close));
+            }, "確定", close, () => {
+                setAlert(<></>);
+                setLoginStatus(false);
+            }));
 
         } else if (!logindata && !Auth.isLogined) {
             setLoginStatus(false);
         }
-
-        var t = setInterval(() => {
-            async function a() {
-                if (Auth.isLogined) {
-                    clearInterval(t);
-                    setLoginStatus(true);
-                }
-            };
-            a();
-        }, 200);
     }
 
     useEffect(() => {
-        var t = setInterval(() => {
+        Auth.event.addListener("login", log);
+
+        function log() {
             if (!Auth.isLogined) {
-                clearInterval(t);
                 setLoginStatus(false);
                 b();
+            } else {
+                setLoginStatus(true);
             }
-        }, 1000);
-
-        return () => {
-            clearInterval(t);
         }
+        log();
     }, [logined]);
 
     function G(prop) {

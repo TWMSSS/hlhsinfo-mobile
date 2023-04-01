@@ -4,6 +4,7 @@ import { ActivityIndicator, Card, Text, useTheme } from "react-native-paper";
 
 import Page from "../../Page";
 import ProfileCard from "./ProfileCard";
+import Auth from "../../api/Auth";
 import { getUserInfo } from "../../api/apis";
 import { makeNeedLoginAlert } from "../../util";
 
@@ -14,12 +15,11 @@ export default ({ navigation }) => {
 
     useEffect(() => {
         async function a() {
-            var scores = await getUserInfo(global.accountData?.token);
+            var scores = await Auth.callAPI(getUserInfo);
             if (!scores.data) {
                 setAlert(makeNeedLoginAlert(() => {
                     navigation.goBack();
                     setAlert(<></>);
-                    global.accountData = undefined;
                 }));
                 return;
             }

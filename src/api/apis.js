@@ -131,6 +131,10 @@ export const cleanCache = async (token) => {
     });
 }
 
+export const getAllScoreLink = (token) => {
+    return "https://hlhsinfo.ml/compare#token=" + token;
+}
+
 export const autoGetCaptcha = async (token) => {
     throw new Error("This API is deprecated!");
 

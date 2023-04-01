@@ -247,13 +247,14 @@ export default () => {
                     }}>請先登入</Text>
                     <Button mode="contained" onPress={() => navigation.navigate("user")}>登入</Button>
                 </View>);
-                var t = setInterval(() => {
+
+                Auth.event.addListener("login", () => {
                     if (Auth.isLogined) {
                         setDisplay(<ActivityIndicator animating={true} />);
                         clearInterval(t);
                         a();
                     }
-                }, 200);
+                })
 
                 return;
             }

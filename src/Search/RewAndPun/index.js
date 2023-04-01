@@ -5,6 +5,7 @@ import { getRewAndPun } from "../../api/apis";
 
 import Page from "../../Page";
 import InfoCard from "../InfoCard";
+import Auth from "../../api/Auth";
 import { makeNeedLoginAlert, showLoading, calcPage, calcFromTo } from "../../util";
 
 export default ({ navigation }) => {
@@ -16,7 +17,7 @@ export default ({ navigation }) => {
     
     useEffect(() => {
         async function a() {
-            var t = await getRewAndPun(window.accountData?.token);
+            var t = await Auth.callAPI(getRewAndPun);
             if (!t.data) {
                 setAlert(makeNeedLoginAlert(() => {
                     navigation.goBack();

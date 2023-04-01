@@ -22,8 +22,6 @@ import {
 } from "react-native";
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 
-import AlertCon from "./Alert";
-
 export const BOUNCE_RATE = 2000;
 
 export const saveLocal = async (name, value) => {

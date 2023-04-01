@@ -58,7 +58,7 @@ export default ({ navigation }) => {
                 }
             }
 
-            console.log(Auth.userData, 37);
+            setAlert(<></>);
 
             navigation.navigate("Menu");
         }

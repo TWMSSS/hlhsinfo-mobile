@@ -4,6 +4,8 @@ import { useTheme } from "react-native-paper";
 import { WebView } from "react-native-webview";
 
 import Page from "../../../Page";
+import Auth from "../../../api/Auth";
+import { getAllScoreLink } from "../../../api/apis";
 import { showSnackBar, netErrList } from "../util";
 
 export default ({ navigation }) => {
@@ -43,7 +45,7 @@ export default ({ navigation }) => {
             height: Dimensions.get("window").height - 192
         }}>
             <WebView
-                source={{ uri: `https://hlhsinfo.ml/compare#token=${global.accountData.token}` }}
+                source={{ uri: Auth.callAPI(getAllScoreLink) }}
                 style={{
                     height: size.width,
                     width: size.width,

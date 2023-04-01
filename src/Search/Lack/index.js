@@ -7,6 +7,7 @@ import { Text, DataTable, Portal, Modal, useTheme } from "react-native-paper";
 import Page from "../../Page";
 import { chartConfig, makeNeedLoginAlert, className, showLoading, calcPage, calcFromTo } from "../../util";
 import InfoCard from "../InfoCard";
+import Auth from "../../api/Auth";
 
 export default ({ navigation }) => {
     const [lack, setLack] = useState();
@@ -18,12 +19,11 @@ export default ({ navigation }) => {
 
     useEffect(() => {
         async function a() {
-            const data = await getLack(global.accountData?.token);
+            const data = await Auth.callAPI(getLack);
             if (!data.data) {
                 setAlert(makeNeedLoginAlert(() => {
                     navigation.goBack();
                     setAlert(<></>);
-                    window.accountData = undefined;
                 }));
                 return;
             }

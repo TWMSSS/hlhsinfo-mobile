@@ -1,3 +1,4 @@
+import EventEmitter from 'events';
 import Keychain from 'react-native-keychain';
 
 import * as API from "./apis";
@@ -8,6 +9,9 @@ class Auth {
     #isLogined = false;
     #userData = {};
     #userImage = "";
+    #userScoreList = [];
+
+    event = new EventEmitter();
 
     constructor() { }
 
@@ -19,9 +23,9 @@ class Auth {
         return this.#userImage;
     }
 
-    // get scoreList() {
-    //     return this.scoreList;
-    // }
+    get scoreList() {
+        return this.#userScoreList;
+    }
 
     get isLogined() {
         return this.#isLogined;
@@ -40,25 +44,39 @@ class Auth {
             return new Error([ErrorCode.ERR_RICH_LIMIT]);
         }
 
-        return "data:image/png;base64," + await API.getLoginCaptcha(this.#authToken).then(e => e.base64());
+        return "data:image/png;base64," + await this.callAPI(API.getLoginCaptcha).then(e => e.base64());
     }
 
     async getUserInfoShort() {
         if (!Object.keys(this.#userData)) return this.#userData;
         if (!this.#isLogined) return new Error([ErrorCode.ERR_NOT_LOGIN]);
 
-        return this.#userData = (await API.getUserInfoShort(this.#key)).data;
+        return this.#userData = (await this.callAPI(API.getUserInfoShort)).data;
     }
 
     async getUserImage() {
         if (this.#userImage) return this.#userImage;
         if (!this.#isLogined) return new Error([ErrorCode.ERR_NOT_LOGIN]);
 
-        return this.#userImage = (await API.getUserInfo(this.#key)).data.profileImg;
+        return this.#userImage = (await this.callAPI(API.getUserInfo)).data.profileImg;
+    }
+
+    async getScoreList() {
+        if (this.#userScoreList.length > 0) return this.#userScoreList;
+        if (!this.#isLogined) return new Error([ErrorCode.ERR_NOT_LOGIN]);
+
+        return this.#userScoreList = (await this.callAPI(API.getAllScoresList)).data;
+    }
+
+    async clearCache() {
+        if (!this.#isLogined) return new Error([ErrorCode.ERR_NOT_LOGIN]);
+
+        await this.callAPI(API.cleanCache);
+        return true;
     }
 
     callAPI(apiFunction, ...args) {
-        return apiFunction.call(this, ...[this.#key, ...args]);
+        return apiFunction.call(this, ...[this.#key || this.#authToken, ...args]);
     }
 
     async login(username, password, captcha, saveAccount = true) {
@@ -66,8 +84,7 @@ class Auth {
             return false;
         }
 
-        let d = await API.login(this.#authToken, username, password, captcha);
-        console.log(d)
+        let d = await this.callAPI(API.login, username, password, captcha);
         if (!d.authtoken) {
             return new Error([ErrorCode.ERR_RESPOND, d.serverMessage ?? d.message]);
         }
@@ -77,6 +94,8 @@ class Auth {
         this.#authToken = "";
 
         await Promise.all([this.getUserInfoShort(), this.getUserImage()]);
+
+        this.event.emit('login', true);
 
         if (saveAccount) Keychain.setGenericPassword(username, password);
 
@@ -89,6 +108,8 @@ class Auth {
         this.#userData = {};
         this.#userImage = "";
         this.#isLogined = false;
+
+        this.event.emit('login', false);
 
         Keychain.resetGenericPassword();
 

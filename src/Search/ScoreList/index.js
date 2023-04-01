@@ -3,8 +3,8 @@ import { ActivityIndicator, useTheme } from "react-native-paper";
 import SelectCard from "../../SelectCard";
 
 import Page from "../../Page";
+import Auth from "../../api/Auth";
 import { makeNeedLoginAlert } from "../../util";
-import { getAllScoresList } from "../../api/apis";
 
 export default ({ navigation }) => {
     const [display, setDisplay] = useState(<ActivityIndicator animating={true} />);
@@ -13,20 +13,17 @@ export default ({ navigation }) => {
 
     useEffect(() => {
         async function a() {
-            var scores = await getAllScoresList(global.accountData?.token);
-            if (!scores.data) {
+            var scores = await Auth.getScoreList();
+            if (!scores) {
                 setAlert(makeNeedLoginAlert(() => {
                     navigation.goBack();
                     setAlert(<></>);
-                    global.accountData = undefined;
                 }));
                 return;
             }
             var dp = [];
 
-            global.accountData.scoreList = scores.data;
-
-            for (let g of scores.data) {
+            for (let g of scores) {
                 dp.push(<SelectCard key={`${g.year}-${g.term}-${g.times}-${g.testID}`} onPress={
                     () => navigation.navigate("Score", {
                         score: `${g.year}-${g.term}-${g.times}-${g.testID}`

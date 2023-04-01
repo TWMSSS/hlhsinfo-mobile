@@ -14,6 +14,7 @@ import Page from "../../Page";
 import { showAlert, makeNeedLoginAlert, showLoading, QRCodeDisplay } from "../../util";
 import InfoCard from "../InfoCard";
 import * as ScoreUtil from "./util";
+import Auth from "../../api/Auth";
 
 export default ({ route, navigation }) => {
     const { score } = route.params;
@@ -62,7 +63,7 @@ export default ({ route, navigation }) => {
             return notFound();
         }
 
-        const scoreBefore = global.accountData?.scoreList?.filter(e => e.type === 1) || [];
+        const scoreBefore = Auth.scoreList.filter(e => e.type === 1) || [];
         const thisS = scoreBefore.findIndex(e => e.year === scoreID[0] && e.term === scoreID[1] && e.times === scoreID[2]);
 
         function dtl(scoreData) {
@@ -120,7 +121,7 @@ export default ({ route, navigation }) => {
 
         if (thisS > 0 && !thisScore.isShared) {
             var g = scoreBefore[thisS - 1];
-            bfScore = await getScore(g["year"], g["term"], g["times"], g["testID"], global.accountData?.token).then(e => e.data);
+            bfScore = await Auth.callAPI(getScore, g["year"], g["term"], g["times"], g["testID"]).then(e => e.data);
         } else if (thisScore.isShared) {
             setDisplayName(`${thisScore.score.userInfo.userName ?? schoolNumber} (${thisScore.score.userInfo.schoolNumber}) 的成績分享`);
         }
@@ -150,12 +151,12 @@ export default ({ route, navigation }) => {
                 return sS(scoreD, "score", score);
             }
 
-            if (!global.accountData) {
+            if (!Auth.isLogined) {
                 navigation.goBack();
                 return;
             }
             const ids = score.split("-");
-            const scoreD = await getScore(ids[0], ids[1], ids[2], ids[3], global.accountData?.token);
+            const scoreD = await Auth.callAPI(getScore, ids[0], ids[1], ids[2], ids[3]);
             if (!scoreD.data) {
                 setAlert(makeNeedLoginAlert(() => {
                     navigation.goBack();
@@ -296,7 +297,7 @@ export default ({ route, navigation }) => {
                     return;
                 }
 
-                var scoreD = await shareScore(scoreData.thisScore.scoreID[0], scoreData.thisScore.scoreID[1], scoreData.thisScore.scoreID[2], scoreData.thisScore.scoreID[3], global.accountData?.token);
+                var scoreD = await Auth.callAPI(shareScore, scoreData.thisScore.scoreID[0], scoreData.thisScore.scoreID[1], scoreData.thisScore.scoreID[2], scoreData.thisScore.scoreID[3]);
                 if (!scoreD.data) {
                     setAlert(makeNeedLoginAlert(() => {
                         navigation.goBack();
@@ -336,7 +337,7 @@ export default ({ route, navigation }) => {
                 }
 
                 try {
-                    var data = "data:image/png;base64," + await shareScoreImage(scoreData.thisScore.scoreID[0], scoreData.thisScore.scoreID[1], scoreData.thisScore.scoreID[2], scoreData.thisScore.scoreID[3], global.accountData?.token).then(e => e.base64());
+                    var data = "data:image/png;base64," + await Auth.callAPI(shareScoreImage, scoreData.thisScore.scoreID[0], scoreData.thisScore.scoreID[1], scoreData.thisScore.scoreID[2], scoreData.thisScore.scoreID[3]).then(e => e.base64());
                 } catch (err) {
                     setAlert(showAlert("錯誤", "無法生成成績圖片!", "關閉", () => {
                         setAlert(<></>);
@@ -352,7 +353,7 @@ export default ({ route, navigation }) => {
                     return;
                 }
 
-                var scoreD = await shareScore(scoreData.thisScore.scoreID[0], scoreData.thisScore.scoreID[1], scoreData.thisScore.scoreID[2], scoreData.thisScore.scoreID[3], global.accountData?.token);
+                var scoreD = await Auth.callAPI(shareScore, scoreData.thisScore.scoreID[0], scoreData.thisScore.scoreID[1], scoreData.thisScore.scoreID[2], scoreData.thisScore.scoreID[3]);
                 if (!scoreD.data) {
                     setAlert(makeNeedLoginAlert(() => {
                         navigation.goBack();

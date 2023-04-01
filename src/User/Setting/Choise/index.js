@@ -3,9 +3,9 @@ import { useState } from "react";
 import Page from "../../../Page";
 import SelectCard from "../../../SelectCard";
 
-import { cleanCache } from "../../../api/apis";
 import { showLoading, showSnackBar, saveLocal, showInput } from "../../../util";
 import { defaultAPIURL } from "../../../api/httpRequest";
+import Auth from "../../../api/Auth";
 
 export default ({ navigation }) => {
     const [alert, setAlert] = useState(<></>);
@@ -18,7 +18,7 @@ export default ({ navigation }) => {
                 if (!global.accountData?.token) return setAlert(showSnackBar("請先登入!", [], () => setAlert(<></>)));
 
                 setAlert(showLoading());
-                await cleanCache(global.accountData?.token);
+                await Auth.clearCache();
                 setAlert(showSnackBar("已清除伺服器快取!", [], () => setAlert(<></>)))
             }}>清除伺服器快取</SelectCard>
             <SelectCard icon="api" onPress={() => {
