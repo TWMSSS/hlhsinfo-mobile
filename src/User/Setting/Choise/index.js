@@ -15,7 +15,7 @@ export default ({ navigation }) => {
             {alert}
             <SelectCard icon="update" onPress={() => navigation.navigate("Version")}>版本資訊</SelectCard>
             <SelectCard icon="trash-can" onPress={async () => {
-                if (!global.accountData?.token) return setAlert(showSnackBar("請先登入!", [], () => setAlert(<></>)));
+                if (!Auth.isLogined) return setAlert(showSnackBar("請先登入!", [], () => setAlert(<></>)));
 
                 setAlert(showLoading());
                 await Auth.clearCache();

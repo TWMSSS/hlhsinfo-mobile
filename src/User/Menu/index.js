@@ -169,7 +169,7 @@ export default ({ navigation }) => {
                     height: 150,
                     backgroundColor: theme.colors.onSurface,
                     borderRadius: 0
-                }} onPress={() => !global.accountData ? navigation.navigate("Login") : logout()}>
+                }} onPress={() => !Auth.isLogined ? navigation.navigate("Login") : logout()}>
                     <View style={{
                         top: 25,
                         marginLeft: 25,

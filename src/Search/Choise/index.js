@@ -62,7 +62,7 @@ export default ({ route }) => {
                 }} />
 
                 <SelectCard icon="trash-can" onPress={async () => {
-                    if (!global.accountData?.token) return setAlert(showSnackBar("請先登入!", [], () => setAlert(<></>)));
+                    if (!Auth.isLogined) return setAlert(showSnackBar("請先登入!", [], () => setAlert(<></>)));
 
                     setAlert(showLoading());
                     await Auth.clearCache();
