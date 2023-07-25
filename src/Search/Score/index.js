@@ -246,20 +246,16 @@ export default ({ route, navigation }) => {
                     <ScoreUtil.MdPT
                         data={[(data.userScore / 100)]}
                         title="您的成績"
-                        display={<Text style={{
-                            color: !data.isUnpass.score ? "" : theme.colors.error,
-                            fontWeight: "bold"
-                        }} >{subj.score}</Text>}
+                        display={subj.score}
+                        isUnpass={!!data.isUnpass.score}
                         chartConfig={
                             !data.isUnpass.score ? ScoreUtil.getChartConfig() : ScoreUtil.mCCF(theme.colors.error)
                         } />
                     <ScoreUtil.MdPT
                         data={[(data.average / 100)]}
                         title="班級平均"
-                        display={<Text style={{
-                            color: !data.isUnpass.gpa ? "" : theme.colors.error,
-                            fontWeight: "bold"
-                        }}>{subj.gpa}</Text>}
+                        display={subj.gpa}
+                        isUnpass={!!data.isUnpass.gpa}
                         chartConfig={
                             !data.isUnpass.gpa ? ScoreUtil.getChartConfig() : ScoreUtil.mCCF(theme.colors.error)
                         } />
@@ -288,7 +284,7 @@ export default ({ route, navigation }) => {
                     Share.open({
                         title: "分享成績!",
                         message: "這是我在花中查詢上查到的成績!",
-                        url: `https://hlhsinfo.ml/s/${scoreID}`
+                        url: `https://hlhsinfo.muisnowdevs.one/s/${scoreID}`
                     }).then(() => console.log("User share the score.")).catch(() => console.log("User cancel the share."));
                 }
                 
@@ -349,7 +345,7 @@ export default ({ route, navigation }) => {
             
             case 2:
                 if (scoreData.thisScore.isShared) {
-                    createQRCodeDisplay(`https://hlhsinfo.ml/s/${score}`);
+                    createQRCodeDisplay(`https://hlhsinfo.muisnowdevs.one/s/${score}`);
                     return;
                 }
 
@@ -363,7 +359,7 @@ export default ({ route, navigation }) => {
                     return;
                 }
 
-                createQRCodeDisplay(`https://hlhsinfo.ml/s/${scoreD.data.id}`);
+                createQRCodeDisplay(`https://hlhsinfo.muisnowdevs.one/s/${scoreD.data.id}`);
                 break;
         }
     }

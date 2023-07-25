@@ -57,7 +57,7 @@ export const MdB = (prop) => {
         }} onPress={prop.onPress}>{prop.name}</Text>
         <Text variant="headlineSmall" style={{
             ...style.ss,
-            marginLeft: 0
+            marginLeft: 0,
         }}>{prop.desc}</Text>
     </M>)
 }
@@ -124,7 +124,14 @@ export const MdPT = (prop) => {
             hideLegend={true}
         />
         <View style={style.d}>
-            <Text variant="displayMedium" style={style.s}>{prop.display}</Text>
+            <Text
+                variant="displayMedium"
+                style={{
+                    ...style.s,
+                    color: !prop.isUnpass ? "" : theme.colors.error,
+                    fontWeight: "bold"
+                }}
+            >{prop.display}</Text>
             <Text style={style.ss}>分</Text>
         </View>
     </MsP>)
@@ -154,18 +161,22 @@ export const MrP = (prop) => {
     </Md>);
 }
 export const MrD = (prop) => {
-    return (<MrP title={<>與<Text style={{
-        color: prop.theme.colors.secondary
-    }}>{prop.type}</Text>差距</>} display={<Text style={{
-        color: prop.scoreType === 0 ? prop.theme.colors.error : prop.theme.colors.onBackground,
-        fontWeight: "bold"
-    }}><MaterialCommunityIcons name={
-        prop.scoreType === 2
-            ? "chevron-up"
-            : prop.scoreType !== 1
-                ? "chevron-down"
-                : "check-circle"
-    } size={45} /> {prop.score}</Text>} />)
+    return (<MrP
+        title={<>與<Text style={{
+            color: prop.theme.colors.secondary
+        }}>{prop.type}</Text>差距</>}
+        display={<Text variant="displayMedium" style={{
+            color: prop.scoreType === 0 ? prop.theme.colors.error : prop.theme.colors.onBackground,
+            fontWeight: "bold"
+        }}>
+            <MaterialCommunityIcons name={
+                prop.scoreType === 2
+                    ? "chevron-up"
+                    : prop.scoreType !== 1
+                        ? "chevron-down"
+                        : "check-circle"
+            } size={45} /> {prop.score}
+        </Text>} />);
 }
 export const ShOption = (prop) => {
     return (<>
